@@ -1,0 +1,30 @@
+Custom Kits 2.0 - equipamentos e emblemas para o Inazuma Fantasy
+=================================================================
+
+O que é
+  Uma app que corre no teu PC (no Microsoft Edge ou no Google Chrome) e cria
+  equipamentos e emblemas novos para o Inazuma Fantasy. Ficam à venda na loja
+  geral do jogo. Os equipamentos e os emblemas do jogo ficam como estão.
+  A app está em inglês, português e espanhol (escolhe no canto superior direito).
+
+Precisas de
+  - Windows com o Microsoft Edge (já vem com o Windows) ou o Google Chrome.
+  - O Inazuma Fantasy instalado, com o VRFW e o BetterQoL na pasta mods.
+  - Opcional, mas recomendado: a pasta "reference" com os ficheiros do jogo
+    (data\dx11 e data\common). Dá-te todas as bases de equipamentos, os
+    emblemas do jogo, o 3D e os cartões dos jogadores. Esta pasta não vem com a
+    app: são ficheiros do jogo e cada um tem de ter a sua.
+    Sem ela tens as bases sem patrocínios e os emblemas feitos a partir de
+    imagens tuas.
+
+Como usar
+  1. Abre "Custom Kits.bat".
+  2. Escolhe a pasta mods do jogo (a que está ao lado do nie.exe).
+  3. Escolhe o que queres criar: um equipamento ou um emblema.
+  4. No fim, na página Mods do launcher, liga o mod "Custom Kits".
+  Fecha sempre o jogo antes de gerar ou apagar alguma coisa.
+
+Notas
+  - A app só escreve dentro de mods\CustomKits. Nada sai do teu computador.
+  - Antes de apagar um equipamento ou um emblema, tira-o das tuas equipas.
+  - Não uses o modo online nem o cross-save com mods.

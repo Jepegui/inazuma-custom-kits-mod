@@ -1,0 +1,29 @@
+Custom Kits 2.0 - equipaciones y escudos para Inazuma Fantasy
+=============================================================
+
+Qué es
+  Una aplicación que funciona en tu PC (en Microsoft Edge o Google Chrome) y
+  crea equipaciones y escudos nuevos para Inazuma Fantasy. Se venden en la
+  tienda general del juego. Las equipaciones y los escudos del juego no cambian.
+  La aplicación está en inglés, portugués y español (elige arriba a la derecha).
+
+Necesitas
+  - Windows con Microsoft Edge (viene con Windows) o Google Chrome.
+  - Inazuma Fantasy instalado, con VRFW y BetterQoL en la carpeta mods.
+  - Opcional, pero recomendado: una carpeta "reference" con los archivos del
+    juego (data\dx11 y data\common). Te da todas las bases de equipaciones,
+    los escudos del juego, la vista 3D y las tarjetas de los jugadores.
+    Sin ella tienes las equipaciones sin patrocinadores y los escudos hechos
+    con tus propias imágenes.
+
+Cómo usarla
+  1. Abre "Custom Kits.bat".
+  2. Elige la carpeta mods del juego (la que está junto a nie.exe).
+  3. Elige qué quieres crear: una equipación o un escudo.
+  4. Al final, activa el mod "Custom Kits" en la página Mods del launcher.
+  Cierra siempre el juego antes de generar o borrar algo.
+
+Notas
+  - La aplicación solo escribe dentro de mods\CustomKits. Nada sale de tu ordenador.
+  - Antes de borrar una equipación o un escudo, quítalo de tus equipos.
+  - No uses el modo online ni el cross-save con mods.

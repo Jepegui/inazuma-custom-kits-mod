@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom Kits</title>
+<style>
+:root { --bg:#10141c; --panel:#1a2130; --panel2:#222b3d; --line:#33405a; --text:#e9eef7; --dim:#9aa8c0; --accent:#ffb000; --accent2:#3ea6ff; --err:#ff6b6b; --ok:#38c172; }
+* { box-sizing: border-box; }
+html, body { height:100%; }
+body { margin:0; font:15px/1.45 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column; }
+[hidden] { display:none !important; }
+header { padding:12px 20px; border-bottom:1px solid var(--line); display:flex; align-items:baseline; gap:14px; flex:none; }
+header h1 { font-size:18px; margin:0; }
+header span { color:var(--dim); font-size:13px; }
+#langpick { background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:7px; padding:4px 8px; font-size:13px; flex:none; align-self:center; }
+#status { margin:0 0 0 auto; color:var(--dim); font-size:14px; text-align:right; }
+#status.err { color:var(--err); }
+button { font:inherit; color:var(--text); background:var(--panel2); border:1px solid var(--line); border-radius:7px; padding:7px 13px; cursor:pointer; }
+button:hover:not(:disabled) { border-color:var(--accent2); }
+button:disabled { opacity:.45; cursor:default; }
+button.primary { background:var(--accent); border-color:var(--accent); color:#1a1300; font-weight:700; }
+button.danger { font-size:12px; padding:4px 9px; color:#ffb4b4; border-color:#6b3a3a; background:#3a2226; }
+button.danger:hover { border-color:var(--err) !important; }
+input[type=text], input[type=search] { font:inherit; color:var(--text); background:#0b0e14; border:1px solid var(--line); border-radius:7px; padding:8px 10px; width:100%; }
+#connect { max-width:640px; margin:60px auto; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:28px 32px; }
+#connect h2 { margin:0 0 8px; font-size:18px; }
+#connect code { display:block; background:#0b0e14; border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin:10px 0 18px; font-size:13px; overflow-wrap:anywhere; }
+#connect p { color:var(--dim); margin:10px 0; }
+#connect .btns { display:flex; gap:10px; flex-wrap:wrap; }
+#connect .btns button { padding:10px 18px; }
+#app { flex:1; min-height:0; display:grid; grid-template-columns:300px 1fr; gap:14px; padding:14px 20px; }
+aside { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px; display:flex; flex-direction:column; min-height:0; }
+aside h2 { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:var(--dim); margin:2px 0 8px; }
+#bases { display:grid; gap:6px; overflow:auto; padding-right:4px; flex:1; min-height:120px; align-content:start; margin-top:8px; }
+#mine { max-height:30vh; overflow:auto; }
+.row { display:flex; align-items:center; gap:10px; text-align:left; width:100%; padding:6px 8px; }
+.row.on { border-color:var(--accent); background:#2b3246; }
+.row.missing { opacity:.4; }
+.row.mine { background:var(--panel2); border:1px solid var(--line); border-radius:7px; margin-bottom:6px; }
+.grow { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.row small { color:var(--dim); font-size:12px; }
+.thumb { width:38px; height:38px; border-radius:6px; border:1px solid var(--line); background:#0b0e14; flex:none; }
+.dot { width:14px; height:14px; border-radius:50%; border:1px solid #0008; flex:none; }
+.hint { color:var(--dim); font-size:13px; margin:4px 0; }
+.hint.ok { color:var(--ok); }
+#refbox { margin:0 0 8px; display:grid; gap:6px; }
+#numprev { font: 900 50px/1 system-ui, sans-serif; paint-order: stroke fill; min-width:84px; text-align:center; padding:8px 6px; border-radius:8px; }
+.numrow { display:flex; align-items:center; gap:14px; }
+.numrow label { display:grid; gap:4px; font-size:12px; color:var(--dim); }
+.numrow input[type=color] { width:56px; height:34px; border:1px solid var(--line); border-radius:7px; background:none; padding:2px; }
+.v3d canvas { width:100%; max-width:560px; aspect-ratio:1/1; display:block; border-radius:10px; background:radial-gradient(circle at 50% 40%, #2c3550, #141a2a 70%); cursor:grab; touch-action:none; }
+.v3dbar { display:flex; align-items:center; gap:14px; margin:8px 0; flex-wrap:wrap; }
+.v3dviews { display:flex; gap:6px; }
+.v3dviews button { padding:5px 10px; font-size:13px; }
+#v3dpbox { margin-top:10px; }
+#v3dpbox .tabs { margin-bottom:8px; }
+.tabpick { display:grid; gap:4px; margin-top:8px; font-size:12px; color:var(--dim); }
+.tabpick select { background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:7px; padding:6px 8px; font-size:13px; }
+button.small { padding:6px 10px; font-size:13px; }
+.note { background:#2b2a1a; border:1px solid #6b5a1e; color:#f3dfa0; border-radius:8px; padding:8px 12px; font-size:13px; margin:0 0 12px; }
+#panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; display:flex; flex-direction:column; min-height:0; }
+#steps { display:flex; gap:4px; padding:10px 12px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+.step { display:flex; align-items:center; gap:8px; background:none; border-color:transparent; color:var(--dim); padding:6px 10px; }
+.step .num { width:24px; height:24px; border-radius:50%; border:1.5px solid var(--line); display:grid; place-items:center; font-size:13px; font-weight:700; }
+.step.on { color:var(--text); } .step.on .num { background:var(--accent2); border-color:var(--accent2); color:#04131f; }
+.step.done .num { background:var(--ok); border-color:var(--ok); color:#04130a; }
+#content { flex:1; min-height:0; overflow:auto; padding:16px 18px; }
+#nav { display:flex; justify-content:space-between; padding:12px 18px; border-top:1px solid var(--line); }
+#nav button { padding:9px 22px; }
+.center { padding:70px 20px; text-align:center; color:var(--dim); }
+h2.t { font-size:17px; margin:0 0 4px; } h3 { font-size:14px; margin:0 0 6px; }
+.figs { display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; }
+figure { margin:0; display:grid; gap:5px; justify-items:center; }
+figcaption { display:grid; justify-items:center; font-size:12px; } figcaption small { color:var(--dim); }
+.mini { border-radius:7px; border:1px solid var(--line); background:#0b0e14; }
+.tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.tab.on { background:var(--accent2); border-color:var(--accent2); color:#04131f; font-weight:600; }
+.tab.small { font-size:13px; padding:5px 10px; }
+.work { display:grid; grid-template-columns:minmax(260px, 500px) minmax(240px, 1fr); gap:18px; align-items:start; }
+#view { width:100%; aspect-ratio:1; border-radius:8px; border:1px solid var(--line); background:#0b0e14; touch-action:none; cursor:crosshair; display:block; }
+.side section { margin-bottom:16px; }
+#palette { display:flex; flex-wrap:wrap; gap:10px; }
+.swatch { display:grid; justify-items:center; gap:3px; padding:6px; border:1px solid var(--line); border-radius:8px; background:var(--panel2); cursor:pointer; }
+.swatch.changed { border-color:var(--accent); }
+.swatch .orig { width:44px; height:10px; border-radius:3px; border:1px solid #0008; }
+.swatch input { width:44px; height:34px; padding:0; border:none; background:none; cursor:pointer; }
+.swatch small { color:var(--dim); font-size:11px; }
+.actions { display:flex; flex-wrap:wrap; gap:8px; }
+.sticker { display:grid; gap:6px; margin-top:10px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--panel2); font-size:13px; }
+.sticker.sel { border-color:#00e0ff; }
+.sticker .shead { display:flex; justify-content:space-between; align-items:center; gap:8px; } .sticker .shead b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sticker label { display:flex; align-items:center; gap:8px; color:var(--dim); } .sticker label span { width:62px; } .sticker input { flex:1; }
+details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor:pointer; color:var(--dim); font-size:13px; margin-bottom:6px; }
+.check { display:flex; gap:7px; align-items:center; font-size:13px; color:var(--dim); margin-top:8px; }
+.pgroup { margin-bottom:16px; } .prow { display:flex; gap:12px; flex-wrap:wrap; }
+.iconrow { display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; }
+#iconview { width:160px; height:160px; border-radius:10px; border:1px solid var(--line); background:repeating-conic-gradient(#1b2231 0 25%, #151b27 0 50%) 0 0/20px 20px; }
+.form { display:grid; gap:12px; min-width:260px; flex:1; max-width:420px; }
+.form label { display:grid; gap:4px; font-size:13px; color:var(--dim); }
+#s-done ol { margin:10px 0 16px 20px; padding:0; }
+.modetabs { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+.modetabs button { padding:8px 6px; font-weight:600; }
+.modetabs button.on { background:var(--accent2); border-color:var(--accent2); color:#04131f; }
+#ebases { display:grid; grid-template-columns:repeat(auto-fill, minmax(70px, 1fr)); gap:6px; overflow:auto; padding-right:4px; flex:1; min-height:120px; align-content:start; margin-top:8px; }
+#ebases h4 { grid-column:1/-1; margin:8px 0 0; font-size:12px; color:var(--dim); text-transform:uppercase; letter-spacing:.6px; }
+.ebase { padding:4px; aspect-ratio:1; display:grid; place-items:center; }
+.ebase canvas { width:100%; height:100%; }
+.ebase.on { border-color:var(--accent); background:#2b3246; }
+.ebase.own { font-size:12px; color:var(--dim); text-align:center; line-height:1.2; }
+.ebase.own b { display:block; font-size:22px; color:var(--accent); }
+.mine-h { font-size:12px; color:var(--dim); margin:8px 0 4px; text-transform:uppercase; letter-spacing:.6px; }
+.mthumb { width:30px; height:30px; flex:none; }
+.welcome { max-width:780px; margin:30px auto; text-align:center; }
+.welcome h2 { font-size:22px; margin:0 0 6px; }
+.welcome > p { color:var(--dim); margin:0 0 22px; }
+.choices { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.choice { display:grid; gap:10px; justify-items:center; padding:22px 18px; border-radius:12px; text-align:center; background:var(--panel2); }
+.choice svg { width:84px; height:84px; }
+.choice b { font-size:17px; } .choice span { color:var(--dim); font-size:13px; }
+.choice.on { border-color:var(--accent); }
+.welcome .next { margin-top:18px; color:var(--dim); font-size:14px; }
+#view.alpha, .checker { background:repeating-conic-gradient(#1b2231 0 25%, #151b27 0 50%) 0 0/24px 24px; }
+.eprev { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-end; margin:10px 0 4px; }
+.eprev figure canvas { border-radius:10px; border:1px solid var(--line); }
+.eprev .light { background:#e9edf5; } .eprev .dark { background:#0b0e14; }
+@media (max-width: 980px) { #app { grid-template-columns:1fr; } .work { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.0</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
+
+<section id="connect">
+  <h2 data-t="c.title">Connect Fantasy’s «mods» folder</h2>
+  <p data-t="c.where">It is the <b>mods</b> folder inside the game’s folder, next to <b>nie.exe</b> (VRFW, BetterQoL and the other mods are in it). For example:</p>
+  <code>…\Inazuma Eleven Fantasy\app_2799860\depot_2799861\mods</code>
+  <div class="btns">
+    <button id="resume" class="primary" hidden><span data-t="c.resume">Continue with the folder</span> «<span id="resumename"></span>»</button>
+    <button id="pick" class="primary" data-t="c.pick">Choose the mods folder…</button>
+  </div>
+  <p data-t="c.ref">Then you can also connect the <b>reference</b> folder (the game’s files, read only): it gives you every kit base, the game’s crests, the 3D view and the player cards. Without it you get the kits without sponsors and crests made from your own pictures.</p>
+  <p data-t="c.perm">Your browser will ask for permission to see and change files in that folder. The app reads the bases already there and only writes inside <b>mods\CustomKits</b>. Nothing leaves your computer.</p>
+  <p data-t="c.close">Close the game before you generate or delete a kit or a crest.</p>
+</section>
+
+<main id="app" hidden>
+  <aside>
+    <div class="modetabs" id="modetabs"><button data-m="kit" data-t="m.kits">Kits</button><button data-m="emblem" data-t="m.crests">Crests</button></div>
+    <h2 id="baseshead"></h2>
+    <div id="refbox"></div>
+    <div id="kitside">
+      <input type="search" id="search" data-t-ph="search" placeholder="Search for a base…">
+    </div>
+    <div id="bases"></div>
+    <div id="ebases" hidden></div>
+    <p class="hint" id="nobase" hidden data-t="nobase">No base with that name.</p>
+    <h2 style="margin-top:16px" data-t="mine">My creations</h2>
+    <div id="mine"></div>
+    <button id="oldbusts" class="small" hidden data-t="oldbusts">Update the cards and icons of earlier kits</button>
+    <label class="tabpick" id="tabpickbox"><span data-t="tabpick">Tab in the game’s kit picker</span><select id="tabpick"></select></label>
+  </aside>
+  <div id="panel">
+    <div id="steps"></div>
+    <div id="content">
+      <div id="s-empty" class="welcome">
+        <h2 data-t="w.title">What do you want to make?</h2>
+        <p data-t="w.sub">Everything you make is sold in Fantasy’s General Store. The game’s own kits and crests stay as they are.</p>
+        <div class="choices">
+          <button class="choice" data-m="kit"><svg viewBox="0 0 100 100"><path d="M30 14 L42 10 Q50 20 58 10 L70 14 L92 30 L82 48 L72 42 L72 90 L28 90 L28 42 L18 48 L8 30 Z" fill="#3ea6ff" stroke="#e9eef7" stroke-width="4" stroke-linejoin="round"/></svg><b data-t="w.kit">Kit</b><span data-t="w.kitd">Start from one of the game’s kits: change its colours, add crests and sponsors, see it in 3D.</span></button>
+          <button class="choice" data-m="emblem"><svg viewBox="0 0 100 100"><path d="M50 8 L86 20 L86 50 Q86 78 50 94 Q14 78 14 50 L14 20 Z" fill="#ffb000" stroke="#e9eef7" stroke-width="4" stroke-linejoin="round"/><path d="M50 30 L56 44 L71 45 L59 55 L63 70 L50 62 L37 70 L41 55 L29 45 L44 44 Z" fill="#1a2130"/></svg><b data-t="w.crest">Crest</b><span data-t="w.crestd">Start from one of the game’s crests and change its colours, or use a picture of your own (for example a PNG of your club’s badge).</span></button>
+        </div>
+        <p class="next" id="welcomenext"></p>
+      </div>
+
+      <div id="s-base" hidden>
+        <h2 class="t" id="basename"></h2>
+        <p class="hint" id="basehint"></p>
+        <div class="figs" id="basetex"></div>
+      </div>
+
+      <div id="s-edit" hidden>
+        <p class="note" id="fromnote" hidden data-t="fromnote">This kit has no away kit of its own among the available textures, so the away kit starts as a copy of the home kit. Change its colours to make it different.</p>
+        <div class="tabs" id="textabs"></div>
+        <div class="tabs" id="parttabs"></div>
+        <div class="work">
+          <div>
+            <div class="tabs" id="viewtabs"><button class="tab small on" data-v="2d" data-t="v.tex">Texture</button><button class="tab small" data-v="3d">3D</button></div>
+            <canvas id="view" width="1024" height="1024"></canvas>
+            <div id="v3dbox" class="v3d" hidden><p class="note" id="v3dmsg" hidden></p><canvas id="v3d"></canvas><div class="v3dbar"><span class="v3dviews"><button data-v="front" data-t="v.front">Front</button><button data-v="side" data-t="v.side">Side</button><button data-v="back" data-t="v.back">Back</button></span><label class="check"><input type="checkbox" class="captain"> <span data-t="v.captain">Captain (armband)</span></label></div><p class="hint" data-t="v.hint">Drag to turn, mouse wheel to zoom. These are the game’s own models (resting pose). To move crests and sponsors, go back to the Texture view.</p></div>
+            <label class="check" id="zonebox"><input type="checkbox" id="zones" checked> <span data-t="zones">Show the areas (front, back, shorts…)</span></label>
+            <p class="hint" id="nozones" hidden data-t="nozones">This shirt cut has no mapped areas yet. Colours change the same way.</p>
+          </div>
+          <div class="side">
+            <section id="embox" hidden>
+              <h3 data-t="em.h">The crest’s picture</h3>
+              <p class="hint" data-t="em.hint">Use a PNG of your own as the whole crest (ideally with a transparent background). It is centred and sized like the game’s crests, and then you can change its colours below.</p>
+              <div class="actions"><button id="emimport" class="primary" data-t="em.import">Use a picture of mine…</button><button id="embg" hidden data-t="em.bg">Make the background transparent</button></div>
+            </section>
+            <section id="palbox">
+              <h3 data-t="pal.h">Click a colour to change it</h3>
+              <div id="palette"></div>
+              <div class="actions" style="margin-top:10px"><button id="resetcolours" data-t="pal.reset">Reset the colours</button></div>
+            </section>
+            <section id="numbox" hidden>
+              <h3 data-t="num.h">Back number</h3>
+              <div class="numrow">
+                <span id="numprev">10</span>
+                <label><span data-t="num.fill">Number</span> <input type="color" id="numfill"></label>
+                <label><span data-t="num.line">Outline</span> <input type="color" id="numline"></label>
+              </div>
+              <div class="actions" style="margin-top:8px"><button id="numreset" data-t="num.reset">Reset the number’s colours</button></div>
+            </section>
+            <section id="overridebox" hidden>
+              <h3 data-t="ov.h">Imported picture</h3>
+              <p class="hint" data-t="ov.hint">This part uses the picture you imported, so colour changes do not apply to it.</p>
+              <button id="dropoverride" data-t="ov.drop">Back to the base</button>
+            </section>
+            <section>
+              <h3 id="stickhead"></h3>
+              <p class="hint" data-t="st.hint">Import a picture (ideally a PNG with a transparent background) and put it wherever you like: drag to move it, pull the blue corner to resize it.</p>
+              <div class="actions"><button id="addsticker" class="primary" data-t="st.add">Import a picture…</button></div>
+              <div id="stickers"></div>
+            </section>
+            <details>
+              <summary data-t="adv.s">Advanced: paint the whole part</summary>
+              <p class="hint" data-t="adv.hint">Export this part, paint all of it in your drawing program and use that PNG in its place. It replaces the whole part; it is not for crests.</p>
+              <div class="actions"><button id="export" data-t="adv.export">Export this part</button><button id="import" data-t="adv.import">Replace with a PNG…</button></div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div id="s-preview" hidden>
+        <h2 class="t" data-t="pv.h">Preview</h2>
+        <p class="hint" data-t="pv.hint">The kit on the game’s 3D models (drag to turn) and, below, the textures as they go into the game.</p>
+        <div id="v3dpbox" class="v3d" hidden>
+          <div class="tabs" id="p3side"><button class="tab small" data-v="0" data-t="pv.home">Home</button><button class="tab small" data-v="1" data-t="pv.away">Away</button></div>
+          <div class="tabs" id="p3role"><button class="tab small" data-v="F" data-t="pv.player">Player</button><button class="tab small" data-v="K" data-t="pv.keeper">Goalkeeper</button></div>
+          <p class="note" id="v3dpmsg" hidden></p><canvas id="v3dp"></canvas><div class="v3dbar"><span class="v3dviews"><button data-v="front" data-t="v.front">Front</button><button data-v="side" data-t="v.side">Side</button><button data-v="back" data-t="v.back">Back</button></span><label class="check"><input type="checkbox" class="captain"> <span data-t="v.captain">Captain (armband)</span></label></div>
+        </div>
+        <div id="previews" style="margin-top:14px"></div>
+      </div>
+
+      <div id="s-icon" hidden>
+        <h2 class="t" data-t="ic.h">Icon, name and price</h2>
+        <div class="iconrow" style="margin-top:14px">
+          <div>
+            <canvas id="iconview" width="256" height="256"></canvas>
+            <div class="actions" style="margin-top:8px"><button id="iconpick" data-t="ic.pick">Use another picture…</button><button id="iconreset" hidden data-t="ic.reset">Back to automatic</button></div>
+          </div>
+          <div class="form">
+            <label><span data-t="ic.name">Kit name in the game</span><input type="text" id="kitname" maxlength="28" data-t-ph="ic.nameph" placeholder="E.g. Crimson Chaos"></label>
+            <label><span data-t="price">Price in the General Store (tokens)</span><input type="text" id="kitprice" inputmode="numeric" value="1" maxlength="4" style="max-width:120px"></label>
+            <p class="hint" id="summary"></p>
+          </div>
+        </div>
+      </div>
+
+      <div id="s-efinal" hidden>
+        <h2 class="t" data-t="ef.h">Name and price</h2>
+        <p class="hint" data-t="ef.hint">This is how the crest looks in the game, large and small, on dark and light backgrounds.</p>
+        <div class="eprev" id="eprev"></div>
+        <div class="form" style="margin-top:16px">
+          <label><span data-t="ef.name">Crest name in the game</span><input type="text" id="emname" maxlength="28" data-t-ph="ef.nameph" placeholder="E.g. Raimon Lightning"></label>
+          <label><span data-t="price">Price in the General Store (tokens)</span><input type="text" id="emprice" inputmode="numeric" value="1" maxlength="4" style="max-width:120px"></label>
+        </div>
+      </div>
+
+      <div id="s-done" hidden>
+        <h2 class="t">«<span id="donename"></span>» <span data-t="done.ready">is ready</span></h2>
+        <ol id="donesteps"></ol>
+        <button id="again" class="primary" data-t="done.again">Make something else</button>
+      </div>
+    </div>
+    <div id="nav" hidden><button id="prev" data-t="nav.prev">Back</button><button id="next" class="primary"></button></div>
+  </div>
+</main>
+<!--SCRIPTS-->
+</body>
+</html>
