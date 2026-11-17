@@ -2,3 +2,4 @@
 *.bat text eol=crlf
 *.txt text eol=crlf
 *.html text eol=lf
+app/custom-kits.html linguist-generated=true
