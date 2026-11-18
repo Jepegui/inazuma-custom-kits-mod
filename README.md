@@ -10,13 +10,13 @@ Custom Kits is a small app that runs in your browser, on your own PC. With it yo
 
 ## Download and use
 
-1. Go to [**Releases**](../../releases) and download the app's zip (`CustomKits-2.0.zip`). **Unzip it** into a folder of your own, for example `C:\Games\Custom Kits`.
-2. Optional, but recommended: in the same release, download the **reference** zip and **unzip it** into the same folder. You get a `reference` folder with a `data` folder inside it. It gives you every kit base, the game's crests, the 3D view and the player cards. Without it you get the kits without sponsors and crests made from your own pictures.
+1. Go to [**Releases**](../../releases) and download `CustomKits-2.0.zip`. It holds the app and the **reference** folder (the game's files the app reads).
+2. **Unzip it** where you like, for example in `C:\Games`. You get a `Custom Kits` folder with `Custom Kits.bat`, `custom-kits.html` and the `reference` folder (with a `data` folder inside it). The reference folder gives you every kit base, the game's crests, the 3D view and the player cards.
 3. Open **Custom Kits.bat** (it opens the app in Microsoft Edge). You can also open `custom-kits.html` in Edge or Chrome yourself.
-4. Choose the game's **mods** folder: the one next to `nie.exe`, with VRFW and BetterQoL in it. Then click **Connect the reference folder…** and choose the `reference` folder you unzipped.
+4. Choose the game's **mods** folder: the one next to `nie.exe`, with VRFW and BetterQoL in it. Then click **Connect the reference folder…** and choose the `reference` folder.
 5. Make a kit or a crest, then switch on the **Custom Kits** mod on the launcher's Mods page.
 
-The app does not work from inside a zip: unzip both files first.
+The app does not work from inside the zip: unzip it first.
 
 Always close the game before you generate or delete anything. Before you delete a kit or a crest, take it off your teams.
 
@@ -69,21 +69,21 @@ python build.py
 O Custom Kits é uma app que corre no browser, no teu PC, e cria **equipamentos** e **emblemas** novos para o *Inazuma Eleven: Victory Road* com o mod **Inazuma Fantasy**. Ficam à venda na loja geral do jogo; os do jogo ficam como estão. A app está em inglês, português e espanhol.
 
 Para usar:
-1. Em [**Releases**](../../releases), descarrega o zip da app (`CustomKits-2.0.zip`) e **descomprime-o** numa pasta tua, por exemplo `C:\Games\Custom Kits`.
-2. Recomendado: na mesma release, descarrega o zip da pasta **reference** e **descomprime-o** na mesma pasta. Fica uma pasta `reference` com uma pasta `data` lá dentro. Dá-te todas as bases, os emblemas do jogo, o 3D e os cartões dos jogadores.
+1. Em [**Releases**](../../releases), descarrega o `CustomKits-2.0.zip`. Tem a app e a pasta **reference** (os ficheiros do jogo que a app lê).
+2. **Descomprime-o** onde quiseres, por exemplo em `C:\Games`. Fica uma pasta `Custom Kits` com o `Custom Kits.bat`, o `custom-kits.html` e a pasta `reference` (com uma pasta `data` lá dentro). A pasta reference dá-te todas as bases, os emblemas do jogo, o 3D e os cartões dos jogadores.
 3. Abre o **Custom Kits.bat**, escolhe a pasta **mods** do jogo e depois carrega em **Ligar a pasta reference…** e escolhe a pasta `reference`.
 4. No fim, liga o mod **Custom Kits** no launcher. Fecha sempre o jogo antes de gerar ou apagar alguma coisa.
 
-A app não funciona de dentro de um zip: descomprime os dois primeiro.
+A app não funciona de dentro do zip: descomprime-o primeiro.
 
 ## Español
 
 Custom Kits es una aplicación que funciona en el navegador, en tu PC, y crea **equipaciones** y **escudos** nuevos para *Inazuma Eleven: Victory Road* con el mod **Inazuma Fantasy**. Se venden en la tienda general del juego; los del juego no cambian. La aplicación está en inglés, portugués y español.
 
 Para usarla:
-1. En [**Releases**](../../releases), descarga el zip de la aplicación (`CustomKits-2.0.zip`) y **descomprímelo** en una carpeta tuya, por ejemplo `C:\Games\Custom Kits`.
-2. Recomendado: en la misma release, descarga el zip de la carpeta **reference** y **descomprímelo** en la misma carpeta. Queda una carpeta `reference` con una carpeta `data` dentro. Te da todas las bases, los escudos del juego, la vista 3D y las tarjetas de los jugadores.
+1. En [**Releases**](../../releases), descarga `CustomKits-2.0.zip`. Tiene la aplicación y la carpeta **reference** (los archivos del juego que la aplicación lee).
+2. **Descomprímelo** donde quieras, por ejemplo en `C:\Games`. Queda una carpeta `Custom Kits` con `Custom Kits.bat`, `custom-kits.html` y la carpeta `reference` (con una carpeta `data` dentro). La carpeta reference te da todas las bases, los escudos del juego, la vista 3D y las tarjetas de los jugadores.
 3. Abre **Custom Kits.bat**, elige la carpeta **mods** del juego y después pulsa **Conectar la carpeta reference…** y elige la carpeta `reference`.
 4. Al final, activa el mod **Custom Kits** en el launcher. Cierra siempre el juego antes de generar o borrar algo.
 
-La aplicación no funciona desde dentro de un zip: descomprime los dos primero.
+La aplicación no funciona desde dentro del zip: descomprímelo primero.
