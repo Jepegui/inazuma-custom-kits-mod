@@ -12,19 +12,25 @@ Precisas de
   - O Inazuma Fantasy instalado, com o VRFW e o BetterQoL na pasta mods.
   - Opcional, mas recomendado: a pasta "reference" com os ficheiros do jogo
     (data\dx11 e data\common). Dá-te todas as bases de equipamentos, os
-    emblemas do jogo, o 3D e os cartões dos jogadores. Esta pasta não vem com a
-    app: são ficheiros do jogo e cada um tem de ter a sua.
+    emblemas do jogo, o 3D e os cartões dos jogadores. Vem no mesmo zip que a
+    app: é a pasta reference ao lado deste ficheiro.
     Sem ela tens as bases sem patrocínios e os emblemas feitos a partir de
     imagens tuas.
 
 Como usar
-  1. Abre "Custom Kits.bat".
-  2. Escolhe a pasta mods do jogo (a que está ao lado do nie.exe).
+  1. Descomprime tudo primeiro (a app não funciona de dentro de um zip),
+     MAS NÃO dentro da pasta mods do jogo: a app não é um mod.
+     Abre "Custom Kits.bat".
+  2. Escolhe a pasta mods do jogo (a que está ao lado do nie.exe) e depois
+     "Ligar a pasta reference..." e escolhe a pasta reference.
   3. Escolhe o que queres criar: um equipamento ou um emblema.
   4. No fim, na página Mods do launcher, liga o mod "Custom Kits".
   Fecha sempre o jogo antes de gerar ou apagar alguma coisa.
 
 Notas
-  - A app só escreve dentro de mods\CustomKits. Nada sai do teu computador.
+  - A app só escreve dentro dos seus próprios mods (mods\CustomKits e os que
+    criares com "+ Novo"). Nada sai do teu computador.
+  - Vários mods: em cima, "+ Novo" cria outro com nome próprio, que se liga
+    ou desliga à parte no launcher.
   - Antes de apagar um equipamento ou um emblema, tira-o das tuas equipas.
   - Não uses o modo online nem o cross-save com mods.

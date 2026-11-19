@@ -12,19 +12,25 @@ You need
   - Inazuma Fantasy installed, with VRFW and BetterQoL in the mods folder.
   - Optional, but recommended: a "reference" folder with the game's files
     (data\dx11 and data\common). It gives you every kit base, the game's
-    crests, the 3D view and the player cards. This folder does not come with
-    the app: they are the game's files and everyone needs their own.
+    crests, the 3D view and the player cards. It comes in the same zip as
+    the app: the reference folder next to this file.
     Without it you get the kits without sponsors and crests made from your
     own pictures.
 
 How to use it
-  1. Open "Custom Kits.bat".
-  2. Choose the game's mods folder (the one next to nie.exe).
+  1. Unzip everything first (the app does not work from inside a zip),
+     NOT inside the game's mods folder: the app is not a mod.
+     Open "Custom Kits.bat".
+  2. Choose the game's mods folder (the one next to nie.exe), then
+     "Connect the reference folder..." and choose the reference folder.
   3. Choose what you want to make: a kit or a crest.
   4. At the end, switch on the "Custom Kits" mod on the launcher's Mods page.
   Always close the game before you generate or delete anything.
 
 Notes
-  - The app only writes inside mods\CustomKits. Nothing leaves your computer.
+  - The app only writes inside its own mods (mods\CustomKits and the ones
+    you make with "+ New"). Nothing leaves your computer.
+  - More than one mod: at the top, "+ New" makes another one with its own
+    name, switched on or off on its own in the launcher.
   - Before you delete a kit or a crest, take it off your teams.
   - Do not use online play or cross-save with mods.

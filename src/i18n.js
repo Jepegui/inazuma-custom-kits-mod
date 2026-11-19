@@ -36,13 +36,14 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 const PT_HTML = {
-  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.0',
+  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.1',
   'c.title': 'Liga a pasta «mods» do Fantasy',
   'c.where': 'É a pasta <b>mods</b> que está dentro da pasta do jogo, ao lado do <b>nie.exe</b> (lá dentro estão o VRFW, o BetterQoL e os outros mods). Por exemplo:',
   'c.resume': 'Continuar com a pasta',
   'c.pick': 'Escolher a pasta mods…',
   'c.ref': 'Depois podes ligar também a pasta <b>reference</b> (os ficheiros do jogo, só leitura): dá-te todas as bases de equipamentos, os emblemas do jogo, o 3D e os cartões dos jogadores. Sem ela tens as bases sem patrocínios e os emblemas feitos a partir de imagens tuas.',
-  'c.perm': 'Vai aparecer um pedido de autorização para ver e alterar ficheiros nessa pasta. O programa lê as bases que já lá estão e só escreve dentro de <b>mods\\CustomKits</b>. Nada sai do teu computador.',
+  'c.perm': 'Vai aparecer um pedido de autorização para ver e alterar ficheiros nessa pasta. O programa lê as bases que já lá estão e só escreve dentro dos seus próprios mods (<b>mods\\CustomKits</b> e os que criares nele). Nada sai do teu computador.',
+  'modlbl': 'Mod', 'modnew': '+ Novo', 'modren': 'Mudar nome',
   'c.close': 'Fecha o jogo antes de gerar ou apagar um equipamento ou um emblema.',
   'm.kits': 'Equipamentos', 'm.crests': 'Emblemas',
   'search': 'Procurar uma base…',
@@ -85,6 +86,16 @@ const PT_HTML = {
 };
 
 const PT = {
+  'You have changes not generated yet. Switch to another mod anyway?': 'Tens alterações ainda não geradas. Mudar de mod mesmo assim?',
+  'Working on «{mod}».': 'A trabalhar em «{mod}».',
+  'Name of the new mod, as the launcher will show it (for example «Liga Portugal Kits»):': 'Nome do novo mod, como o launcher o vai mostrar (por exemplo «Liga Portugal Kits»):',
+  'Mod «{name}» created (folder mods\\{folder}). Switch it on in the launcher’s Mods page.': 'Mod «{name}» criado (pasta mods\\{folder}). Liga-o na página Mods do launcher.',
+  'Could not create the mod: ': 'Não foi possível criar o mod: ',
+  'New name of «{name}», as the launcher shows it:': 'Novo nome de «{name}», como o launcher o mostra:',
+  'Renamed. The folder stays mods\\{folder}.': 'Nome mudado. A pasta continua a ser mods\\{folder}.',
+  'Could not rename: ': 'Não foi possível mudar o nome: ',
+  'there are already {n} kits in your Custom Kits mods, the most the game’s texture names allow. Delete one first.': 'já há {n} equipamentos nos teus mods do Custom Kits, o máximo que os nomes das texturas do jogo permitem. Apaga um primeiro.',
+  'On the launcher’s Mods page, check that «{mod}» is switched on.': 'Na página Mods do launcher, confirma que «{mod}» está ligado.',
   // folders
   'connect the reference folder first': 'liga primeiro a pasta reference',
   'That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).': 'Essa pasta não tem os ficheiros do jogo. Escolhe a pasta «reference» (a que tem data\\dx11 lá dentro).',
@@ -177,13 +188,14 @@ const PT = {
 };
 
 const ES_HTML = {
-  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.0",
+  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.1",
   "c.title": "Conecta la carpeta «mods» de Fantasy",
   "c.where": "Es la carpeta <b>mods</b> que está dentro de la carpeta del juego, junto a <b>nie.exe</b> (dentro están VRFW, BetterQoL y los demás mods). Por ejemplo:",
   "c.resume": "Continuar con la carpeta",
   "c.pick": "Elegir la carpeta mods…",
   "c.ref": "Después también puedes conectar la carpeta <b>reference</b> (los archivos del juego, solo lectura): te da todas las bases de equipaciones, los escudos del juego, la vista 3D y las tarjetas de los jugadores. Sin ella tienes las equipaciones sin patrocinadores y los escudos hechos con tus propias imágenes.",
-  "c.perm": "Tu navegador pedirá permiso para ver y cambiar archivos en esa carpeta. La aplicación lee las bases que ya están allí y solo escribe dentro de <b>mods\\CustomKits</b>. Nada sale de tu ordenador.",
+  "c.perm": "Tu navegador pedirá permiso para ver y cambiar archivos en esa carpeta. La aplicación lee las bases que ya están allí y solo escribe dentro de sus propios mods (<b>mods\\CustomKits</b> y los que crees en ella). Nada sale de tu ordenador.",
+  "modlbl": "Mod", "modnew": "+ Nuevo", "modren": "Renombrar",
   "c.close": "Cierra el juego antes de generar o borrar una equipación o un escudo.",
   "m.kits": "Equipaciones",
   "m.crests": "Escudos",
@@ -248,6 +260,16 @@ const ES_HTML = {
 };
 
 const ES = {
+  "You have changes not generated yet. Switch to another mod anyway?": "Tienes cambios aún no generados. ¿Cambiar de mod de todos modos?",
+  "Working on «{mod}».": "Trabajando en «{mod}».",
+  "Name of the new mod, as the launcher will show it (for example «Liga Portugal Kits»):": "Nombre del nuevo mod, tal como lo mostrará el launcher (por ejemplo «Liga Portugal Kits»):",
+  "Mod «{name}» created (folder mods\\{folder}). Switch it on in the launcher’s Mods page.": "Mod «{name}» creado (carpeta mods\\{folder}). Actívalo en la página Mods del launcher.",
+  "Could not create the mod: ": "No se pudo crear el mod: ",
+  "New name of «{name}», as the launcher shows it:": "Nuevo nombre de «{name}», tal como lo muestra el launcher:",
+  "Renamed. The folder stays mods\\{folder}.": "Renombrado. La carpeta sigue siendo mods\\{folder}.",
+  "Could not rename: ": "No se pudo renombrar: ",
+  "there are already {n} kits in your Custom Kits mods, the most the game’s texture names allow. Delete one first.": "ya hay {n} equipaciones en tus mods de Custom Kits, el máximo que permiten los nombres de las texturas del juego. Borra una primero.",
+  "On the launcher’s Mods page, check that «{mod}» is switched on.": "En la página Mods del launcher, comprueba que «{mod}» está activado.",
   "connect the reference folder first": "conecta primero la carpeta reference",
   "That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).": "Esa carpeta no tiene los archivos del juego. Elige la carpeta «reference» (la que tiene data\\dx11 dentro).",
   "Reference folder connected: the game’s crests are below.": "Carpeta reference conectada: los escudos del juego están aquí abajo.",

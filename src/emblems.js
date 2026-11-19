@@ -1,11 +1,15 @@
 // ---- Emblems: a game emblem (reference folder) with new colours, or a picture of the user's, as a new emblem item
 const EMBLEM_DIR = ['data', 'dx11', 'menu', '200_icon', '01_icon_emblem'];
-const MOD_EMBLEM_DIR = [MOD, 'assets', 'menu', '200_icon', '01_icon_emblem'];
-// em984001…em984999: no emblem of the game or of the mods uses these keys (item id = crc32 of the key)
-const emblemKey = e => `em984${String(e.n).padStart(3, '0')}`;
-const emblemItem = e => `emblem_${pad(e.n, 3)}`;
+const MOD_EMBLEM_DIR_OF = () => [MOD, 'assets', 'menu', '200_icon', '01_icon_emblem'];
+// The key is what a save remembers as bought (item id = crc32 of the key), so it never comes back: em98<mod id><number>
+// (no emblem of the game or of the mods starts so). The crests made before 2.1 keep em984001…
+const emblemKey = e => e.key || `em984${String(e.n).padStart(3, '0')}`;
+const emblemItem = e => e.item || `emblem_${pad(e.n, 3)}`;
 const EMBLEM_BASE_ITEM = 'em900012';   // the game emblem whose item row the new ones copy (as the community crests do)
-const TAB_ICON = 'icon_list_tab_customkits', TAB_ATLAS = '#/menu/200_icon/custom_kits_own/custom_kits_icon_list_tab.g4tx';
+// the crest picker's tab of each mod: names of its own
+const TAB_ICON_OF = () => legacyMod() ? 'icon_list_tab_customkits' : `icon_list_tab_ck${uidOf()}`;
+const TAB_TEX_OF = () => legacyMod() ? 'custom_kits_icon_list_tab' : `ck_${uidOf()}_icon_list_tab`;
+const TAB_ATLAS_OF = () => `#/menu/200_icon/custom_kits_own/${TAB_TEX_OF()}.g4tx`;
 const TAB_TOML_DIR = 'content/images/menu/200_icon/16_icon_list_tab';
 const EMBLEM_TOMLS = ['content/items/emblems.toml', 'content/emblem_tabs/custom_emblems.toml', 'content/emblem_colours/custom_emblems.toml',
   `${TAB_TOML_DIR}/custom_emblems_tab.toml`, 'content/sprite_redirects/emblem_tab.toml'];
@@ -16,17 +20,18 @@ const ESIZE = 512, EFIT = 452;   // the emblem pictures are 512 x 512; the game'
 // ---------- the mod's files
 function emblemFiles(out) {
   const ems = store.emblems; if (!ems.length) return;
+  const TAB_ICON = TAB_ICON_OF(), TAB_ATLAS = TAB_ATLAS_OF(), TAB_TEX = TAB_TEX_OF();
   let items = `schema = "VRFW.item/2"\n# Custom Kits: the emblems made with the app (generated; do not edit)\ndefault_lang = "en"\n`;
   for (const e of ems) items += `\n[[item]]\nname = "${emblemItem(e)}"\nbase = "${EMBLEM_BASE_ITEM}"\ncategory = "emblem"\nicon_key = "${emblemKey(e)}"\nkey_id = true\n` + LANGS.map(l => `  [item.text.${l}]\n  name = ${tomlStr(e.name)}\n`).join('');
   out['content/items/emblems.toml'] = items;
-  out['content/emblem_tabs/custom_emblems.toml'] = `schema = "VRFW.emblem_tab/1"\n# the emblem picker's tab of the emblems made with the app\n\n[[VRFW.EmblemTab]]\nname = "custom"\norder = 300\nicon = "${TAB_ICON}"\nicon_off = "${TAB_ICON}_off"\nemblems = [${ems.map(e => `"${emblemKey(e)}"`).join(', ')}]\n`;
+  out['content/emblem_tabs/custom_emblems.toml'] = `schema = "VRFW.emblem_tab/1"\n# the emblem picker's tab of the emblems made with the app\n\n[[VRFW.EmblemTab]]\nname = "${legacyMod() ? 'custom' : `custom_${uidOf()}`}"\norder = 300\nicon = "${TAB_ICON}"\nicon_off = "${TAB_ICON}_off"\nemblems = [${ems.map(e => `"${emblemKey(e)}"`).join(', ')}]\n`;
   const rows = ems.filter(e => e.measure).map(e => { const m = e.measure; return `  { emblem = "${emblemKey(e)}"${m.hue == null ? '' : `, hue = ${m.hue}`}, strength = ${m.strength.toFixed(3)}, share = ${m.share.toFixed(3)}, value = ${m.value.toFixed(3)} },`; });
   if (rows.length) out['content/emblem_colours/custom_emblems.toml'] = `schema = "VRFW.emblem_colour/1"\n\n[VRFW]\nEmblemColour = [\n${rows.join('\n')}\n]\n`;
-  out[`${TAB_TOML_DIR}/custom_emblems_tab.toml`] = `schema = "VRFW.image/1"\n\n[[texture]]\natlas = "${TAB_ATLAS}"\nname = "custom_kits_icon_list_tab"\nsize = [292, 96]\n` +
-    [['', 0], ['_off', 148]].map(([sfx, x]) => `\n[[sprite]]\natlas = "${TAB_ATLAS}"\nname = "${TAB_ICON}${sfx}"\ntexture = "custom_kits_icon_list_tab"\nx = ${x}\ny = 0\npng = "custom_emblems_tab/${TAB_ICON}${sfx}.png"\n`).join('');
+  out[`${TAB_TOML_DIR}/custom_emblems_tab.toml`] = `schema = "VRFW.image/1"\n\n[[texture]]\natlas = "${TAB_ATLAS}"\nname = "${TAB_TEX}"\nsize = [292, 96]\n` +
+    [['', 0], ['_off', 148]].map(([sfx, x]) => `\n[[sprite]]\natlas = "${TAB_ATLAS}"\nname = "${TAB_ICON}${sfx}"\ntexture = "${TAB_TEX}"\nx = ${x}\ny = 0\npng = "custom_emblems_tab/${TAB_ICON}${sfx}.png"\n`).join('');
   out['content/sprite_redirects/emblem_tab.toml'] = `schema = "VRFW.sprite_redirect/1"\n# the tab icon lives in the mod's own atlas\n` +
     ['#/menu/200_icon/16_icon_list_tab/icon_list_tab.g4tx', '#/menu/200_icon/16_icon_list_tab/<LG>/icon_list_tab.g4tx'].map((a, i) =>
-      `\n[[VRFW.SpriteRedirect]]\nname = "custom_kits_icon_list_tab${i ? '_lg' : ''}"\natlas = "${a}"\nown_atlas = "${TAB_ATLAS}"\nsprites = ["${TAB_ICON}", "${TAB_ICON}_off"]\n`).join('');
+      `\n[[VRFW.SpriteRedirect]]\nname = "${TAB_TEX}${i ? '_lg' : ''}"\natlas = "${a}"\nown_atlas = "${TAB_ATLAS}"\nsprites = ["${TAB_ICON}", "${TAB_ICON}_off"]\n`).join('');
 }
 // the tab icon (a crest with a star, slanted as the game's tab icons): white when focused, a dark see-through one when not
 function tabIcon(on) {
@@ -42,13 +47,13 @@ const canvasPng = c => new Promise(r => c.toBlob(b => b.arrayBuffer().then(a => 
 async function syncEmblemAssets() {
   const keep = new Set(store.emblems.flatMap(e => [emblemKey(e) + '.g4tx', emblemKey(e) + '_s.g4tx']));
   try {
-    const d = await dirAt(MOD_EMBLEM_DIR), names = [];
+    const d = await dirAt(MOD_EMBLEM_DIR_OF()), names = [];
     for await (const [n] of d.entries()) names.push(n);
-    for (const n of names) if (/^em984\d{3}/.test(n) && !keep.has(n)) await d.removeEntry(n);
+    for (const n of names) if (/^em98/.test(n) && !keep.has(n)) await d.removeEntry(n);
   } catch (e) { /* nothing there yet */ }
   const iconDir = [MOD, ...TAB_TOML_DIR.split('/'), 'custom_emblems_tab'];
   if (!store.emblems.length) { await removeAt(iconDir, true); return; }
-  for (const on of [true, false]) await writeAt([...iconDir, `${TAB_ICON}${on ? '' : '_off'}.png`], await canvasPng(tabIcon(on)));
+  for (const on of [true, false]) await writeAt([...iconDir, `${TAB_ICON_OF()}${on ? '' : '_off'}.png`], await canvasPng(tabIcon(on)));
 }
 
 // ---------- pictures
@@ -182,7 +187,7 @@ async function renderEmblemBases() {
   }
 }
 async function myEmblemThumb(e, cv) {
-  try { const im = await readEmblem([...MOD_EMBLEM_DIR, emblemKey(e) + '_s.g4tx']); cv.getContext('2d').drawImage(toImageCanvas(im), 0, 0, 64, 64); } catch (err) { /* no picture */ }
+  try { const im = await readEmblem([...MOD_EMBLEM_DIR_OF(), emblemKey(e) + '_s.g4tx']); cv.getContext('2d').drawImage(toImageCanvas(im), 0, 0, 64, 64); } catch (err) { /* no picture */ }
 }
 
 // ---------- making one
@@ -245,23 +250,22 @@ async function generateEmblem() {
   const name = $('#emname').value.trim(), price = Math.max(0, Math.min(9999, Math.round(+$('#emprice').value || 0)));
   if (!name) { status(T('Give the crest a name before generating it.'), 'err'); $('#emname').focus(); return; }
   const n = Math.max(store.nextEm || 0, store.emblems.reduce((m, e) => Math.max(m, e.n), 0)) + 1;
-  if (n > 999) { status(T('You have reached the limit of 999 crests.'), 'err'); return; }
   busy = true; $('#next').disabled = true; $('#prev').disabled = true;
   try {
-    const e = { n, name, price, from: cur.key || null }, key = emblemKey(e);
+    const e = { n, key: `em98${uidOf()}${pad(n, 4)}`, item: `emblem_${uidOf()}_${n}`, name, price, from: cur.key || null }, key = emblemKey(e);
     status(T('Generating the crest…')); await sleep(30);
     const px = finalPixels(cur.tex[0].images[0]);
     const l = new Uint8Array(ESIZE * ESIZE); BC7.encode(px, ESIZE, ESIZE, l, 0); await sleep();
     const s = new Uint8Array(ESIZE * ESIZE / 4); BC7.encode(halveAlpha(px, ESIZE, ESIZE), ESIZE / 2, ESIZE / 2, s, 0);
-    await writeAt([...MOD_EMBLEM_DIR, key + '.g4tx'], G4TX.build(EMBLEM_TPL.l, [key], [l]));
-    await writeAt([...MOD_EMBLEM_DIR, key + '_s.g4tx'], G4TX.build(EMBLEM_TPL.s, [key + '_s01'], [s]));
+    await writeAt([...MOD_EMBLEM_DIR_OF(), key + '.g4tx'], G4TX.build(EMBLEM_TPL.l, [key], [l]));
+    await writeAt([...MOD_EMBLEM_DIR_OF(), key + '_s.g4tx'], G4TX.build(EMBLEM_TPL.s, [key + '_s01'], [s]));
     e.measure = measureEmblem(px);
     const p0 = cur.tex[0].images[0].pal[0]; e.color = p0 ? toHex(p0.to || p0.c) : '#888888';
     store.rev++; store.nextEm = n; store.emblems.push(e);
     await writeMod();
     renderMyKits(); status('');
     cur.finished = true;
-    doneSteps(name, [T('On the launcher’s Mods page, check that «Custom Kits» is switched on.'), T('Open the game through Steam and choose Fantasy.'),
+    doneSteps(name, [T('On the launcher’s Mods page, check that «{mod}» is switched on.', { mod: modName() }), T('Open the game through Steam and choose Fantasy.'),
       T('Go to the General Store and buy the crest (it costs {price}).', { price: tokens(price) }), T('In your team, choose the crest: the ones you make sit together in a tab of their own in the crest picker (after the series tabs).')]);
   } catch (err) { console.error(err); status(T('Something went wrong while generating: ') + err.message, 'err'); }
   busy = false; $('#next').disabled = false; showStep();

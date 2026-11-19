@@ -13,17 +13,25 @@ Necesitas
   - Opcional, pero recomendado: una carpeta "reference" con los archivos del
     juego (data\dx11 y data\common). Te da todas las bases de equipaciones,
     los escudos del juego, la vista 3D y las tarjetas de los jugadores.
+    Viene en el mismo zip que la aplicación: es la carpeta reference
+    junto a este archivo.
     Sin ella tienes las equipaciones sin patrocinadores y los escudos hechos
     con tus propias imágenes.
 
 Cómo usarla
-  1. Abre "Custom Kits.bat".
-  2. Elige la carpeta mods del juego (la que está junto a nie.exe).
+  1. Descomprime todo primero (la aplicación no funciona desde dentro de un zip),
+     PERO NO dentro de la carpeta mods del juego: la aplicación no es un mod.
+     Abre "Custom Kits.bat".
+  2. Elige la carpeta mods del juego (la que está junto a nie.exe) y después
+     "Conectar la carpeta reference..." y elige la carpeta reference.
   3. Elige qué quieres crear: una equipación o un escudo.
   4. Al final, activa el mod "Custom Kits" en la página Mods del launcher.
   Cierra siempre el juego antes de generar o borrar algo.
 
 Notas
-  - La aplicación solo escribe dentro de mods\CustomKits. Nada sale de tu ordenador.
+  - La aplicación solo escribe dentro de sus propios mods (mods\CustomKits y los
+    que crees con "+ Nuevo"). Nada sale de tu ordenador.
+  - Varios mods: arriba, "+ Nuevo" crea otro con su propio nombre, que se activa
+    o desactiva por separado en el launcher.
   - Antes de borrar una equipación o un escudo, quítalo de tus equipos.
   - No uses el modo online ni el cross-save con mods.

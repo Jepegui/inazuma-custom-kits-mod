@@ -99,6 +99,10 @@ details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor
 .form { display:grid; gap:12px; min-width:260px; flex:1; max-width:420px; }
 .form label { display:grid; gap:4px; font-size:13px; color:var(--dim); }
 #s-done ol { margin:10px 0 16px 20px; padding:0; }
+.modbar { display:grid; grid-template-columns:1fr auto auto; gap:6px; align-items:end; margin-bottom:4px; }
+.modbar label { display:grid; gap:4px; font-size:12px; color:var(--dim); }
+.modbar select { background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:7px; padding:6px 8px; font-size:13px; font-weight:600; min-width:0; }
+.modfolder { display:block; font-size:11px; color:var(--dim); margin-bottom:12px; }
 .modetabs { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
 .modetabs button { padding:8px 6px; font-weight:600; }
 .modetabs button.on { background:var(--accent2); border-color:var(--accent2); color:#04131f; }
@@ -128,7 +132,7 @@ details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor
 </style>
 </head>
 <body>
-<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.0</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
+<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.1</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
 
 <section id="connect">
   <h2 data-t="c.title">Connect Fantasy’s «mods» folder</h2>
@@ -139,12 +143,14 @@ details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor
     <button id="pick" class="primary" data-t="c.pick">Choose the mods folder…</button>
   </div>
   <p data-t="c.ref">Then you can also connect the <b>reference</b> folder (the game’s files, read only): it gives you every kit base, the game’s crests, the 3D view and the player cards. Without it you get the kits without sponsors and crests made from your own pictures.</p>
-  <p data-t="c.perm">Your browser will ask for permission to see and change files in that folder. The app reads the bases already there and only writes inside <b>mods\CustomKits</b>. Nothing leaves your computer.</p>
+  <p data-t="c.perm">Your browser will ask for permission to see and change files in that folder. The app reads the bases already there and only writes inside its own mods (<b>mods\CustomKits</b> and the ones you create in it). Nothing leaves your computer.</p>
   <p data-t="c.close">Close the game before you generate or delete a kit or a crest.</p>
 </section>
 
 <main id="app" hidden>
   <aside>
+    <div class="modbar"><label><span data-t="modlbl">Mod</span><select id="modpick"></select></label><button id="modnew" class="small" data-t="modnew" title="">+ New</button><button id="modren" class="small" data-t="modren">Rename</button></div>
+    <small class="modfolder" id="modfolder"></small>
     <div class="modetabs" id="modetabs"><button data-m="kit" data-t="m.kits">Kits</button><button data-m="emblem" data-t="m.crests">Crests</button></div>
     <h2 id="baseshead"></h2>
     <div id="refbox"></div>

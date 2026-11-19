@@ -17,10 +17,24 @@ const fromHex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), 
 const tomlStr = s => '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\u0000-\u001f]/g, ' ') + '"';
 
 const ARES = ['BetterQoL', 'modules', 'AresNoSponsors', 'assets', 'chr'];
-const MOD = 'CustomKits';
-const ICON_DIR = [MOD, 'assets', 'images', 'menu', '200_icon', '02_icon_item', 'custom_kits_icons'];
-const STATE_FILE = [MOD, 'content', 'items', 'kits.toml'];
+// Several mods can be made with the app, each a folder of its own in mods: CustomKits (the first, its shared names kept
+// as they were) and the ones the user adds. MOD is the one being worked on.
+const FIRST_MOD = 'CustomKits';
+let MOD = FIRST_MOD;
+const legacyMod = () => MOD === FIRST_MOD;
+const uidOf = () => store.uid;
+// the kits' shop icons: an atlas of the mod's own
+const iconSub = () => legacyMod() ? 'custom_kits_icons' : `ck_${uidOf()}_icons`;
+const ICON_DIR_OF = () => [MOD, 'assets', 'images', 'menu', '200_icon', '02_icon_item', iconSub()];
 const STATE_TAG = '# CUSTOMKITS ';
+// The names the game knows a kit by. The item's name is what a save remembers as bought, so it never comes back: a kit
+// made after another was deleted gets a new one (kit_<mod id>_<number>; the kits made before 2.1 keep kit_0001…). The
+// texture slot (u<block><slot>01) can be reused: the game remembers nothing of it.
+const kitItem = k => k.item || `kit_${pad(k.n)}`;
+const kitIconKey = k => k.icon || `uni_ck${pad(k.n, 5)}`;
+const kitSlot = k => k.slot ?? k.n;
+const kitTag = k => k.item ? k.item.replace(/^kit_/, 'ck') : `customkits_${pad(k.n)}`;
+const MAX_SLOT = 499;
 const LANGS = ['ja', 'en', 'es', 'fr', 'de', 'it', 'pt', 'zh_hans', 'zh_hant'];
 const PART = { '_20': 'Top (shirt)', '_30': 'Bottom (shorts and socks)' };
 const ZONES = {
@@ -37,7 +51,8 @@ const SERIES = [
 const DEFAULT_TAB = 8;   // the series with the fewest kits of the game
 const tabOf = () => SERIES.find(x => x[0] === (store.tab ?? DEFAULT_TAB));
 let store = { rev: 0, next: 0, kits: [], emblems: [], nextEm: 0 };   // what was made with this tool (kept inside the mod)
-const FILES_REV = 2;   // raise when modFiles() writes something new
+let allMods = [];                   // every mod made with the app in the mods folder: { folder, store }
+const FILES_REV = 3;   // raise when modFiles() writes something new
 let mode = 'kit';                   // what the side list offers: 'kit' or 'emblem'
 let cur = null;                     // the kit being edited
 let busy = false;
@@ -116,18 +131,81 @@ async function connect(saved) {
   try { await dirAt(['VRFW']); } catch (e) { status(T('That does not look like Fantasy’s «mods» folder (there is no VRFW folder in it). Choose …\\depot_2799861\\mods.'), 'err'); root = null; return; }
   try { await dirAt(ARES); } catch (e) { status(T('The kits without sponsors were not found (BetterQoL\\modules\\AresNoSponsors). Check that BetterQoL is installed.'), 'err'); root = null; return; }
   try { await idb('readwrite', s => s.put(h, 'mods')); } catch (e) { /* not remembered, that is all */ }
-  await loadStore();
+  await loadMods(); renderModPick();
   status('');
   $('#connect').hidden = true; $('#app').hidden = false;
   await setMode(mode); showStep();
   migrating = (async () => { try { if (await migrateNames()) renderMyKits(); } catch (e) { console.error(e); status(T('Could not update the names of the kits’ textures: ') + e.message, 'err'); } })();
   await migrating;
-  // the mod's files as this version of the app writes them (the launcher's texts in English, …): rewritten once
-  if ((store.kits.length || store.emblems.length) && store.filesRev !== FILES_REV) {
-    try { store.filesRev = FILES_REV; await writeMod(); } catch (e) { console.error(e); }
-  }
+  // the mods' files as this version of the app writes them (the state in mod.toml, …): rewritten once
+  await forEachMod(async () => {
+    if ((store.kits.length || store.emblems.length) && store.filesRev !== FILES_REV) {
+      try { store.filesRev = FILES_REV; await writeMod(); } catch (e) { console.error(e); }
+    }
+  });
   await connectRef(false);
   if (!refRoot) await renderBases();
+}
+// runs fn with each mod as the current one, then comes back to the one chosen
+async function forEachMod(fn) {
+  const was = MOD;
+  try { for (const m of allMods) { MOD = m.folder; store = m.store; await fn(m); } }
+  finally { const m = allMods.find(x => x.folder === was); MOD = m.folder; store = m.store; }
+}
+// ---------- the mods: which one is being worked on, a new one, its name
+function renderModPick() {
+  const sel = $('#modpick'); if (!sel) return; sel.textContent = '';
+  for (const m of allMods) sel.append(el('option', { value: m.folder, text: modName(m) }));
+  sel.value = MOD;
+  $('#modfolder').textContent = `mods\\${MOD}`;
+}
+function switchMod(folder) {
+  const m = allMods.find(x => x.folder === folder); if (!m || m.folder === MOD) return;
+  if (busy) { renderModPick(); return; }
+  if (anyEdit() && !confirm(T('You have changes not generated yet. Switch to another mod anyway?'))) { renderModPick(); return; }
+  MOD = m.folder; store = m.store; cur = null;
+  try { localStorage.setItem('customkits-mod', MOD); } catch (e) { /* not remembered */ }
+  document.querySelectorAll('#bases .row, #ebases .ebase').forEach(r => r.classList.remove('on'));
+  renderModPick(); renderMyKits(); showStep(); status(T('Working on «{mod}».', { mod: modName() }), 'ok');
+}
+const folderFor = name => {
+  let f = name.normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^A-Za-z0-9]+/).filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join('').slice(0, 40);
+  if (!/^[A-Za-z]/.test(f)) f = 'Kits' + f;
+  return f;
+};
+async function newMod() {
+  if (busy) return;
+  const name = (prompt(T('Name of the new mod, as the launcher will show it (for example «Liga Portugal Kits»):')) || '').trim();
+  if (!name) return;
+  if (anyEdit() && !confirm(T('You have changes not generated yet. Switch to another mod anyway?'))) return;
+  let folder = folderFor(name), i = 2;
+  const taken = async f => { if (allMods.some(m => m.folder.toLowerCase() === f.toLowerCase())) return true; try { await dirAt([f]); return true; } catch (e) { return false; } };
+  while (await taken(folder)) folder = folderFor(name) + i++;
+  busy = true;
+  try {
+    const m = { folder, store: fixStore({ rev: 1, next: 0, kits: [], emblems: [], nextEm: 0, name, filesRev: FILES_REV }) };
+    allMods.push(m); MOD = folder; store = m.store; cur = null;
+    await writeMod();
+    try { localStorage.setItem('customkits-mod', MOD); } catch (e) { /* not remembered */ }
+    renderModPick(); renderMyKits(); showStep();
+    status(T('Mod «{name}» created (folder mods\\{folder}). Switch it on in the launcher’s Mods page.', { name, folder }), 'ok');
+  } catch (e) { console.error(e); status(T('Could not create the mod: ') + e.message, 'err'); }
+  busy = false;
+}
+async function renameMod() {
+  if (busy) return;
+  const name = (prompt(T('New name of «{name}», as the launcher shows it:', { name: modName() }), modName()) || '').trim();
+  if (!name || name === modName()) return;
+  busy = true;
+  try { store.name = name; store.rev++; await writeMod(); renderModPick(); status(T('Renamed. The folder stays mods\\{folder}.', { folder: MOD }), 'ok'); }
+  catch (e) { status(T('Could not rename: ') + e.message, 'err'); }
+  busy = false;
+}
+// texture slots in use by every mod of the app: two mods must not share a texture name
+function freeSlot() {
+  const used = new Set(allMods.flatMap(m => m.store.kits.map(kitSlot)));
+  for (let s = 1; s <= MAX_SLOT; s++) if (!used.has(s)) return s;
+  return null;
 }
 // The game names a kit's card busts from its texture: u<4 digits><2 digits>_<2 digits>, the last two digits of the
 // number taken over by the body variant of each mesh (u110701_10 on the meshes u003301 / u003355 -> busts u110701_10_00,
@@ -142,7 +220,7 @@ async function migrateNames() {
     const base = findBase(k); if (!base) continue;
     for (let ti = 0; ti < k.files.length; ti++) {
       const f = k.files[ti], t = base.textures[ti]; if (!f || (t && t.kind)) continue;
-      const parts = f.split('/'), want = texName(k.n, ti, t) + '.g4tx';
+      const parts = f.split('/'), want = texName(kitSlot(k), ti, t) + '.g4tx';
       if (parts[parts.length - 1] === want) continue;
       const bytes = new Uint8Array(await (await fileAt([MOD, 'assets', 'chr', ...parts])).arrayBuffer());
       await writeAt([MOD, 'assets', 'chr', ...parts.slice(0, -1), want], bytes);
@@ -152,15 +230,36 @@ async function migrateNames() {
   if (moved) { store.rev++; await writeMod(); }
   return moved;
 }
-async function loadStore() {
-  store = { rev: 0, next: 0, kits: [] };
-  try {
-    const text = await (await fileAt(STATE_FILE)).text();
-    const line = text.split('\n').find(l => l.startsWith(STATE_TAG));
-    if (line) store = JSON.parse(line.slice(STATE_TAG.length));
-  } catch (e) { /* first use */ }
-  store.kits = store.kits || []; store.emblems = store.emblems || []; store.nextEm = store.nextEm || 0;
+// the state of a mod: the line kept in its mod.toml (before 2.1: in content/items/kits.toml, which went away with the last kit)
+async function readState(folder) {
+  for (const p of [[folder, 'mod.toml'], [folder, 'content', 'items', 'kits.toml']]) {
+    try {
+      const text = await (await fileAt(p)).text(), line = text.split('\n').find(l => l.startsWith(STATE_TAG));
+      if (line) return JSON.parse(line.slice(STATE_TAG.length));
+    } catch (e) { /* not there */ }
+  }
+  return null;
 }
+const newUid = () => { for (;;) { const u = 'abcdefghijkmnpqrstuvwxyz'[Math.floor(Math.random() * 24)] + Math.random().toString(36).slice(2, 5); if (u.length === 4 && /^[a-z0-9]+$/.test(u) && !allMods.some(m => m.store.uid === u)) return u; } };
+function fixStore(s) {
+  s.kits = s.kits || []; s.emblems = s.emblems || []; s.nextEm = s.nextEm || 0; s.next = s.next || 0; s.rev = s.rev || 0;
+  if (!s.uid) s.uid = newUid();
+  // the counters never go back, also if they were lost before 2.1
+  s.next = Math.max(s.next, ...s.kits.map(k => k.n)); s.nextEm = Math.max(s.nextEm, ...s.emblems.map(e => e.n));
+  return s;
+}
+async function loadMods() {
+  allMods = [];
+  const folders = [];
+  for await (const [name, h] of root.entries()) if (h.kind === 'directory') folders.push(name);
+  for (const f of folders.sort()) { const s = await readState(f); if (s) allMods.push({ folder: f, store: s }); }
+  if (!allMods.some(m => m.folder === FIRST_MOD) && !allMods.length) allMods.push({ folder: FIRST_MOD, store: { rev: 0, next: 0, kits: [], emblems: [], nextEm: 0 } });
+  for (const m of allMods) fixStore(m.store);
+  let want = null; try { want = localStorage.getItem('customkits-mod'); } catch (e) { /* none */ }
+  const m = allMods.find(x => x.folder === want) || allMods.find(x => x.folder === FIRST_MOD) || allMods[0];
+  MOD = m.folder; store = m.store;
+}
+const modName = (m = { folder: MOD, store }) => m.store.name || (m.folder === FIRST_MOD ? 'Custom Kits' : m.folder);
 
 // ---------- editing
 function buildPalette(px, n, alpha = false) {
@@ -294,8 +393,9 @@ function drawIcon(cv, body, accent) {
 }
 function modFiles() {
   const out = {}, kits = store.kits;
-  out['mod.toml'] = `id = "CustomKits"
-name = "Custom Kits"
+  // the state line is a TOML comment: the launcher skips it, and mod.toml is never deleted
+  out['mod.toml'] = `id = "${MOD}"
+name = ${tomlStr(modName())}
 version = "1.0.${store.rev}"
 author = "local"
 description = "Kits and crests made with the Custom Kits app, sold in the General Store. The game's own stay as they are."
@@ -303,23 +403,24 @@ priority = 0
 type = "content"
 tags = ["Teams"]
 updated = "${new Date().toISOString().slice(0, 10)}"
-prefix = "CustomKits"
-folder = "CustomKits"
+prefix = "${MOD}"
+folder = "${MOD}"
 requires = ["VRFW>=0.3.0", "BetterQoL>=0.3.0"]
 optional = ["InazumaFantasy"]
 conflicts = []
 # starts switched OFF: turned on in the Mods screen
 default_enabled = false
+${STATE_TAG}${JSON.stringify(store)}
 `;
   out['changelog.toml'] = `schema = "VRFW.changelog/1"\n\n[[release]]\nicon = "general"\nnotes = [\n    "Kits made: ${kits.length}",\n    "Crests made: ${store.emblems.length}",\n]\n`;
   // the launcher's name and description: English in every language
   const desc = 'Kits and crests made with the Custom Kits app, sold in the General Store. The game\'s own stay as they are.';
-  out['text/keys.toml'] = `schema = "VRFW.text_key/1"\ndefault_lang = "en"\n` + LANGS.map(l => `\n[${l}.new]\nmod_name = "Custom Kits"\nmod_description = ${tomlStr(desc)}\n`).join('');
+  out['text/keys.toml'] = `schema = "VRFW.text_key/1"\ndefault_lang = "en"\n` + LANGS.map(l => `\n[${l}.new]\nmod_name = ${tomlStr(modName())}\nmod_description = ${tomlStr(desc)}\n`).join('');
   if (!kits.length && !store.emblems.length) return out;
   let looks = `# Custom Kits: clothes and kit rows (generated by the kit maker; do not edit)\n\nschema = "VRFW.look/2"\n`, kitRows = '';
   for (const k of kits) {
     const base = findBase(k); if (!base) continue;
-    const done = new Set(), name = (m, ti) => `customkits_${pad(k.n)}_${ti}_${m}`, own = ti => ti != null && k.files[ti];
+    const done = new Set(), name = (m, ti) => `${kitTag(k)}_${ti}_${m}`, own = ti => ti != null && k.files[ti];
     const idOf = f => /^0x/.test(f) ? f : `"${f}"`;
     for (const m of base.models) {
       const sl = (m.extra && m.extra.sleeve) || {};
@@ -340,7 +441,7 @@ default_enabled = false
       const v = k.num && k.num[m.type + r], c = m.cells[col];
       if (v && c) looks += `\n[[number]]\nclothes = "${name(c[0], c[1])}"\nfill = "${v[0]}"\noutline = "${v[1]}"\n`;
     }
-    kitRows += `\n[[kit]]\nid = "CustomKits.kit_${pad(k.n)}"\nfrom = 0x${k.base.toString(16).toUpperCase().padStart(8, '0')}\n`;
+    kitRows += `\n[[kit]]\nid = "${MOD}.${kitItem(k)}"\nfrom = 0x${k.base.toString(16).toUpperCase().padStart(8, '0')}\n`;
     for (const m of base.models) {
       kitRows += `  [[kit.model]]\n  type = ${m.type}\n  [kit.model.cells]\n`;
       for (const [col, [from, ti]] of Object.entries(m.cells)) kitRows += `  ${col} = "${name(from, ti)}"\n`;
@@ -353,17 +454,17 @@ default_enabled = false
   for (const k of kits) for (const b of k.busts || [])
     looks += `\n[[sprite]]\nuniform = "${b.slice(0, -1)}1"\nfile = "${BUST_DIR.join('/')}/${b}_l.g4tx"\n`;
   if (kits.length) out['content/looks/custom_kits.toml'] = looks + kitRows;
-  let items = `schema = "VRFW.item/2"\n${STATE_TAG}${JSON.stringify(store)}\ndefault_lang = "en"\n`;
+  let items = `schema = "VRFW.item/2"\n# Custom Kits: the kits made with the app (generated; do not edit)\ndefault_lang = "en"\n`;
   let images = `schema = "VRFW.image/1"\n`, shop = `schema = "VRFW.shop/2"\n\n[[edit]]\ntarget = "InazumaFantasy.general_store"\n`;
   for (const k of kits) {
     const base = findBase(k); if (!base) continue;
-    items += `\n[[item]]\nname = "kit_${pad(k.n)}"\nbase = "${tabOf() ? tabOf()[2] : base.item}"\ncategory = "kit"\nmodel = { uniform = "CustomKits.kit_${pad(k.n)}" }\nicon_key = "uni_ck${pad(k.n, 5)}"\n` + LANGS.map(l => `  [item.text.${l}]\n  name = ${tomlStr(k.name)}\n`).join('');
-    images += `\n[[texture]]\natlas = "#/menu/200_icon/02_icon_item/custom_kits_icons.g4tx"\nname = "uni_ck${pad(k.n, 5)}"\npng = "custom_kits_icons/uni_ck${pad(k.n, 5)}.png"\n`;
-    shop += `\n  [[edit.entry]]\n  item = "kit_${pad(k.n)}"\n  price = ${Math.max(0, Math.min(9999, k.price ?? 1))}\n  currency = "tk_bb000001"\n  stock = 1\n`;
+    items += `\n[[item]]\nname = "${kitItem(k)}"\nbase = "${tabOf() ? tabOf()[2] : base.item}"\ncategory = "kit"\nmodel = { uniform = "${MOD}.${kitItem(k)}" }\nicon_key = "${kitIconKey(k)}"\n` + LANGS.map(l => `  [item.text.${l}]\n  name = ${tomlStr(k.name)}\n`).join('');
+    images += `\n[[texture]]\natlas = "#/menu/200_icon/02_icon_item/${iconSub()}.g4tx"\nname = "${kitIconKey(k)}"\npng = "${iconSub()}/${kitIconKey(k)}.png"\n`;
+    shop += `\n  [[edit.entry]]\n  item = "${kitItem(k)}"\n  price = ${Math.max(0, Math.min(9999, k.price ?? 1))}\n  currency = "tk_bb000001"\n  stock = 1\n`;
   }
-  out['content/items/kits.toml'] = items;   // with no kit too: it keeps the state line
+  if (kits.length) out['content/items/kits.toml'] = items;
   if (kits.length) out['content/images/menu/200_icon/02_icon_item/custom_kits_icons.toml'] = images;
-  if (kits.length) out['content/sprite_redirects/kit_icons.toml'] = `schema = "VRFW.sprite_redirect/1"\n\n[[VRFW.SpriteRedirect]]\nname = "kit_icons"\natlas = "#/menu/200_icon/02_icon_item/icon_item07.g4tx"\nown_atlas = "#/menu/200_icon/02_icon_item/custom_kits_icons.g4tx"\nsprites = [${kits.map(k => `"uni_ck${pad(k.n, 5)}"`).join(', ')}]\n`;
+  if (kits.length) out['content/sprite_redirects/kit_icons.toml'] = `schema = "VRFW.sprite_redirect/1"\n\n[[VRFW.SpriteRedirect]]\nname = "${legacyMod() ? 'kit_icons' : `kit_icons_${uidOf()}`}"\natlas = "#/menu/200_icon/02_icon_item/icon_item07.g4tx"\nown_atlas = "#/menu/200_icon/02_icon_item/${iconSub()}.g4tx"\nsprites = [${kits.map(k => `"${kitIconKey(k)}"`).join(', ')}]\n`;
   emblemFiles(out);
   for (const e of store.emblems) shop += `\n  [[edit.entry]]\n  item = "${emblemItem(e)}"\n  price = ${Math.max(0, Math.min(9999, e.price ?? 1))}\n  currency = "tk_bb000001"\n  stock = 1\n`;
   out['addons/InazumaFantasy/content/shops/kits.toml'] = shop;
@@ -389,7 +490,7 @@ async function writeMod() {
     for (const n of names) if (!keep.has(n)) await bd.removeEntry(n);
   } catch (e) { /* nothing there yet */ }
   try {
-    const icons = await dirAt(ICON_DIR), keep = new Set(store.kits.map(k => `uni_ck${pad(k.n, 5)}.png`)), names = [];
+    const icons = await dirAt(ICON_DIR_OF()), keep = new Set(store.kits.map(k => `${kitIconKey(k)}.png`)), names = [];
     for await (const [n] of icons.entries()) names.push(n);
     for (const n of names) if (!keep.has(n)) await icons.removeEntry(n);
   } catch (e) { /* nothing there yet */ }
@@ -549,6 +650,18 @@ function numberCanvas(fill, outline) {
   g.lineWidth = 16; g.strokeStyle = '#' + outline; g.strokeText('10', 128, 140); g.fillStyle = '#' + fill; g.fillText('10', 128, 140);
   return c;
 }
+// The back number's models map one cell of the game's number sheet: 0.1 wide on most kits, 0.05 on others (Orchid
+// Academy, Platos…), with a few edge vertices wrapped round to ~1.0. The preview's '10' fills that cell.
+const numMeshCache = new WeakMap();
+function numMesh(m) {
+  if (!numMeshCache.has(m)) {
+    const uv = Float32Array.from(m.uv, x => x > 0.5 ? x - 1 : x);
+    let span = 0;
+    for (let k = 0; k < 2; k++) { let lo = 1, hi = -1; for (let i = k; i < uv.length; i += 2) { lo = Math.min(lo, uv[i]); hi = Math.max(hi, uv[i]); } span = Math.max(span, hi - lo); }
+    numMeshCache.set(m, [{ ...m, uv }, span <= 0.06 ? 0.05 : 0.1]);
+  }
+  return numMeshCache.get(m);
+}
 let sceneToken = 0;
 async function scene3d(v, type, role, msgEl) {
   if (!v || !cur) return;
@@ -573,7 +686,7 @@ async function scene3d(v, type, role, msgEl) {
     const nc = cur.num[type + role] || numDefault(type + role);
     if (mt.num && nc) {
       v.setTexture('num', numberCanvas(nc[0], nc[1]));
-      for (const m of await loadMesh(mt.num)) parts.push({ mesh: m, tex: 'num', uvScale: [10, 10], alphaCut: 0.5 });
+      for (const m of await loadMesh(mt.num)) { const [nm, cell] = numMesh(m); parts.push({ mesh: nm, tex: 'num', uvScale: [1 / cell, 1 / cell], alphaCut: 0.5 }); }
     }
     const shoeKind = role === 'K' && all.some(([t]) => t.kind === 'shoesK' && t.role.includes(side)) ? 'shoesK' : 'shoes';
     const acc = [[shoeKind, 'shoes', true], ['gloves', 'gloves', role === 'K'], ['armband', 'armband', captain]];
@@ -583,7 +696,12 @@ async function scene3d(v, type, role, msgEl) {
       await ensureLoaded(a[1]);
       const im = (cur.tex[a[1]].images || [])[0];
       v.setTexture(name, im && compose(im)); v.setTexture(name + '_oc', ocOf(a[1], im ? im.part : '_10'));
-      for (const m of await loadMesh(a[0].mesh)) parts.push({ mesh: m, tex: name, oc: name + '_oc' });
+      // a few bases name boots/armband models the game files do not have (s000293, m000198…): the model of the texture's
+      // own folder, else none, rather than no 3D at all
+      const dir = a[0].path.split('/').slice(0, 2).join('/'), own = `${dir}/${dir.split('/')[1]}.g4md`;
+      let ms = [];
+      for (const p of [a[0].mesh, own]) { try { ms = await loadMesh(p); break; } catch (e) { /* the next one */ } }
+      for (const m of ms) parts.push({ mesh: m, tex: name, oc: name + '_oc' });
     }
     if (token !== sceneToken) return;
     v.setParts(parts); say('');
@@ -850,22 +968,24 @@ async function generate() {
   if (!name) { status(T('Give the kit a name before generating it.'), 'err'); $('#kitname').focus(); return; }
   busy = true; $('#next').disabled = true; $('#prev').disabled = true;
   try {
-    const n = Math.max(store.next || 0, store.kits.reduce((m, k) => Math.max(m, k.n), 0)) + 1, files = [];
+    const n = Math.max(store.next || 0, store.kits.reduce((m, k) => Math.max(m, k.n), 0)) + 1, files = [], slot = freeSlot();
+    if (slot == null) throw new Error(T('there are already {n} kits in your Custom Kits mods, the most the game’s texture names allow. Delete one first.', { n: MAX_SLOT }));
+    const ids = { item: `kit_${uidOf()}_${n}`, icon: `uni_ck${uidOf()}${pad(n, 4)}`, slot };
     for (let ti = 0; ti < cur.base.textures.length; ti++) {
       const t = cur.base.textures[ti];
       if (t.kind && !(cur.tex[ti].images || []).some(edited)) { files.push(null); continue; }
       status(T('Generating {n} of {t}: {what}…', { n: ti + 1, t: cur.base.textures.length, what: roleLabel(t.role) })); await sleep(30);
       const bytes = new Uint8Array(await (await texFile(cur.base, t)).arrayBuffer()), g = G4TX.parse(bytes);
       for (const im of cur.tex[ti].images || []) if (edited(im)) { G4TX.replaceEntry(bytes, g.ents.find(x => x.name === im.entry), finalPixels(im)); await sleep(); }
-      const dir = t.path.split('/').slice(0, -1), fname = texName(n, ti, t) + '.g4tx';
+      const dir = t.path.split('/').slice(0, -1), fname = texName(slot, ti, t) + '.g4tx';
       await writeAt([MOD, 'assets', 'chr', ...dir, fname], bytes);
       files.push([...dir, fname].join('/'));
     }
     status(T('Saving the icon and the mod’s files…')); await sleep(30);
     if (!cur.icon) await refreshIcon3d();
     drawIconPreview();
-    await writeAt([...ICON_DIR, `uni_ck${pad(n, 5)}.png`], await new Promise(r => $('#iconview').toBlob(r, 'image/png')));
-    const kit = { n, name, price, base: cur.base.id, src: cur.base.src, files, num: { ...cur.num }, color: toHex(kitColours()[0]), icon3d: !cur.icon && cur.icon3d ? ICON_REV : false, customIcon: !!cur.icon };
+    await writeAt([...ICON_DIR_OF(), `${ids.icon}.png`], await new Promise(r => $('#iconview').toBlob(r, 'image/png')));
+    const kit = { n, ...ids, name, price, base: cur.base.id, src: cur.base.src, files, num: { ...cur.num }, color: toHex(kitColours()[0]), icon3d: !cur.icon && cur.icon3d ? ICON_REV : false, customIcon: !!cur.icon };
     if (refRoot) {
       try { kit.busts = await makeBusts(kit, cur.base, (i, t) => status(T('Generating the player cards: {n} of {t}…', { n: i, t }))); kit.bustRev = BUST_REV; }
       catch (e) { console.error(e); status(T('The player cards were not generated: ') + e.message, 'err'); await sleep(1500); }
@@ -874,7 +994,7 @@ async function generate() {
     await writeMod();
     renderMyKits(); status('');
     cur.finished = true;
-    doneSteps(name, [T('On the launcher’s Mods page, check that «Custom Kits» is switched on.'), T('Open the game through Steam and choose Fantasy.'), T('Go to the General Store (General Store → Kits). The kit costs {price}.', { price: tokens(price) })]);
+    doneSteps(name, [T('On the launcher’s Mods page, check that «{mod}» is switched on.', { mod: modName() }), T('Open the game through Steam and choose Fantasy.'), T('Go to the General Store (General Store → Kits). The kit costs {price}.', { price: tokens(price) })]);
   } catch (e) { console.error(e); status(T('Something went wrong while generating: ') + e.message, 'err'); }
   busy = false; $('#next').disabled = false; showStep();
 }
@@ -897,7 +1017,7 @@ async function bustsForAll() {
         if (mi >= 0 && k.files[mi]) {
           status(T('Icon of «{name}»…', { name: k.name }));
           const tx = await readKitTop(k.files[mi]), icon = await kitIcon(base, tx);
-          if (icon) { await writeAt([...ICON_DIR, `uni_ck${pad(k.n, 5)}.png`], await new Promise(r => icon.toBlob(r, 'image/png'))); k.icon3d = ICON_REV; }
+          if (icon) { await writeAt([...ICON_DIR_OF(), `${kitIconKey(k)}.png`], await new Promise(r => icon.toBlob(r, 'image/png'))); k.icon3d = ICON_REV; }
         }
       }
     }
@@ -930,6 +1050,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   $('#numfill').addEventListener('input', setNumber); $('#numline').addEventListener('input', setNumber);
   $('#numreset').addEventListener('click', () => { const key = numKey(); if (key) { delete cur.num[key]; renderNumber(); } });
   $('#tabpick').addEventListener('change', changeTab);
+  $('#modpick').addEventListener('change', () => switchMod($('#modpick').value));
+  $('#modnew').addEventListener('click', newMod); $('#modren').addEventListener('click', renameMod);
   $('#kitname').addEventListener('input', () => status(''));
   $('#import').addEventListener('click', importPng);
   $('#export').addEventListener('click', exportPng);
