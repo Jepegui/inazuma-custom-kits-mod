@@ -1,5 +1,5 @@
-Custom Kits 2.0 - equipaciones y escudos para Inazuma Fantasy
-=============================================================
+Custom Kits 2.1.1 - equipaciones y escudos para Inazuma Fantasy
+===============================================================
 
 Qué es
   Una aplicación que funciona en tu PC (en Microsoft Edge o Google Chrome) y
@@ -21,6 +21,7 @@ Necesitas
 Cómo usarla
   1. Descomprime todo primero (la aplicación no funciona desde dentro de un zip),
      PERO NO dentro de la carpeta mods del juego: la aplicación no es un mod.
+     Tampoco dentro de Program Files (mira abajo).
      Abre "Custom Kits.bat".
   2. Elige la carpeta mods del juego (la que está junto a nie.exe) y después
      "Conectar la carpeta reference..." y elige la carpeta reference.
@@ -35,3 +36,11 @@ Notas
     o desactiva por separado en el launcher.
   - Antes de borrar una equipación o un escudo, quítalo de tus equipos.
   - No uses el modo online ni el cross-save con mods.
+
+Program Files
+  Edge y Chrome no dejan que una página abra carpetas dentro de Program Files,
+  Program Files (x86), Windows o AppData. Mantén esta aplicación Y el juego
+  fuera de ellas. Si el juego está en la biblioteca predeterminada de Steam
+  (C:\Program Files (x86)\Steam), muévelo en Steam: clic derecho en el juego >
+  Propiedades > Archivos instalados > Mover carpeta de instalación, a otra
+  biblioteca (por ejemplo D:\SteamLibrary).

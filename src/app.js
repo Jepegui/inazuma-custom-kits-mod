@@ -451,8 +451,6 @@ ${STATE_TAG}${JSON.stringify(store)}
       if (ex.shoesK && own(ex.shoesK[1])) kitRows += `  shoesKeeperModelIdCrc = ${part(ex.shoesK)}\n`;
     }
   }
-  for (const k of kits) for (const b of k.busts || [])
-    looks += `\n[[sprite]]\nuniform = "${b.slice(0, -1)}1"\nfile = "${BUST_DIR.join('/')}/${b}_l.g4tx"\n`;
   if (kits.length) out['content/looks/custom_kits.toml'] = looks + kitRows;
   let items = `schema = "VRFW.item/2"\n# Custom Kits: the kits made with the app (generated; do not edit)\ndefault_lang = "en"\n`;
   let images = `schema = "VRFW.image/1"\n`, shop = `schema = "VRFW.shop/2"\n\n[[edit]]\ntarget = "InazumaFantasy.general_store"\n`;
@@ -1000,7 +998,7 @@ async function generate() {
 }
 const ICON_REV = 5;   // the kits whose icons were made by an older version get new ones
 const iconOld = k => !k.customIcon && k.icon3d !== ICON_REV;
-const BUST_REV = 3;   // the cards made by an older version are made again (2: the extra parts, the cuts with the bottom listed first)
+const BUST_REV = 6;   // the cards made by an older version are made again (2: the extra parts, the cuts with the bottom listed first; 4: the special bodies; 5: the raised-collar files; 6: the cuts)
 const bustOld = k => !k.busts || k.bustRev !== BUST_REV;
 const kitPending = k => (bustOld(k) || iconOld(k)) && !!findBase(k);
 async function bustsForAll() {

@@ -1,5 +1,5 @@
-Custom Kits 2.0 - equipamentos e emblemas para o Inazuma Fantasy
-=================================================================
+Custom Kits 2.1.1 - equipamentos e emblemas para o Inazuma Fantasy
+===================================================================
 
 O que é
   Uma app que corre no teu PC (no Microsoft Edge ou no Google Chrome) e cria
@@ -20,6 +20,7 @@ Precisas de
 Como usar
   1. Descomprime tudo primeiro (a app não funciona de dentro de um zip),
      MAS NÃO dentro da pasta mods do jogo: a app não é um mod.
+     Nem dentro de Program Files (vê abaixo).
      Abre "Custom Kits.bat".
   2. Escolhe a pasta mods do jogo (a que está ao lado do nie.exe) e depois
      "Ligar a pasta reference..." e escolhe a pasta reference.
@@ -34,3 +35,10 @@ Notas
     ou desliga à parte no launcher.
   - Antes de apagar um equipamento ou um emblema, tira-o das tuas equipas.
   - Não uses o modo online nem o cross-save com mods.
+
+Program Files
+  O Edge e o Chrome não deixam uma página abrir pastas dentro de Program Files,
+  Program Files (x86), Windows ou AppData. Mantém esta app E o jogo fora delas.
+  Se o jogo estiver na biblioteca padrão do Steam (C:\Program Files (x86)\Steam),
+  muda-o no Steam: botão direito no jogo > Propriedades > Ficheiros instalados >
+  Mover pasta de instalação, para outra biblioteca (por exemplo D:\SteamLibrary).

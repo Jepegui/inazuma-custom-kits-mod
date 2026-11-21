@@ -129,10 +129,11 @@ details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor
 .eprev figure canvas { border-radius:10px; border:1px solid var(--line); }
 .eprev .light { background:#e9edf5; } .eprev .dark { background:#0b0e14; }
 @media (max-width: 980px) { #app { grid-template-columns:1fr; } .work { grid-template-columns:1fr; } }
+  .warnbox { padding: 10px 14px; border-radius: 8px; border: 1px solid #f5b301; background: rgba(245, 179, 1, .12); color: #ffd666; font-weight: 600; }
 </style>
 </head>
 <body>
-<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.1</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
+<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.1.1</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
 
 <section id="connect">
   <h2 data-t="c.title">Connect Fantasy’s «mods» folder</h2>
@@ -142,6 +143,7 @@ details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor
     <button id="resume" class="primary" hidden><span data-t="c.resume">Continue with the folder</span> «<span id="resumename"></span>»</button>
     <button id="pick" class="primary" data-t="c.pick">Choose the mods folder…</button>
   </div>
+  <p data-t="c.blocked" class="warnbox">⚠ Edge and Chrome cannot open folders inside <b>Program Files</b> (or Windows / AppData). Keep this app and the game outside them. If the game is in Steam’s default library (<b>C:\Program Files (x86)\Steam</b>), move it in Steam: <b>Properties → Installed Files → Move install folder</b>.</p>
   <p data-t="c.ref">Then you can also connect the <b>reference</b> folder (the game’s files, read only): it gives you every kit base, the game’s crests, the 3D view and the player cards. Without it you get the kits without sponsors and crests made from your own pictures.</p>
   <p data-t="c.perm">Your browser will ask for permission to see and change files in that folder. The app reads the bases already there and only writes inside its own mods (<b>mods\CustomKits</b> and the ones you create in it). Nothing leaves your computer.</p>
   <p data-t="c.close">Close the game before you generate or delete a kit or a crest.</p>

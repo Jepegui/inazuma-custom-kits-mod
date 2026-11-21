@@ -1,7 +1,9 @@
 // Custom Kits: the kit busts of the player cards (the shoulders and neck under each mini-face).
 // The game asks for data/dx11/menu/200_icon/10_icon_chr/uniform/<name>_<a><b>_l.g4tx, <name> = the texture's name with
 // the last two digits of its number replaced by the mesh's body variant (texture u110701_10 on mesh u003355 -> u110755_10);
-// a = 1 for the second neck of a body (variants 06 / 07 have two), b = 0 / 1 (same picture).
+// a = 1 for the second neck of a body (variants 06 / 07 have two), b = 1 for the players with a raised collar
+// (the same picture here; each file's entries are named after it). The cuts of a kit (sleeves rolled up, bare shoulders,
+// navel …) are asked as <mesh>_<texture>_00 (u090141_u119601_20_00), as the game's and IECross's own kit cards.
 // Each bust is drawn from the game's own meshes bent into the portrait pose (pose sets of the body types) and the kit's
 // texture, framed as the game's busts (fitted on existing busts), unlit; the second image is the mask of the skin.
 const BUST_DIR = ['assets', 'menu', '200_icon', '10_icon_chr', 'uniform'];
@@ -96,6 +98,13 @@ const BustRenderer = (() => {
 
 // the images of a texture the kit wrote (the top _20, the bottom _30, the extra parts), with their occlusion maps, as canvases:
 // { parts: { '_20': { img, oc }, … }, top, oc, bottom, boc }
+// One card picture written as each file the game may read for it (see makeBusts), each with its own entry names
+// <file>_1 / _2: the game finds the picture by these names (a file whose entries carry another name shows an empty card).
+async function writeBust(stems, blobs) {
+  for (const n of stems) await writeAt([MOD, ...BUST_DIR, n + '_l.g4tx'], G4TX.build(BUST_TPL, [n + '_1', n + '_2'], blobs));
+  return stems;
+}
+
 async function readKitTop(file) {
   const bytes = new Uint8Array(await (await fileAt([MOD, 'assets', 'chr', ...file.split('/')])).arrayBuffer()), g = G4TX.parse(bytes);
   const cvs = im => { const c = document.createElement('canvas'); c.width = im.w; c.height = im.h; c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(im.data.buffer || im.data), im.w, im.h), 0, 0); return c; };
@@ -123,23 +132,28 @@ async function makeBusts(k, base, progress) {
   for (let ti = 0; ti < base.textures.length; ti++) {
     const t = base.textures[ti], file = k.files[ti];
     if (t.kind || !file || !t.busts) continue;
-    const seen = {};
+    const seen = {}, home = (t.mesh || '').split('/').slice(0, -1).join('/');
     for (const [mesh, skin] of t.busts) {
       const mb = mesh.split('/').pop().replace(/\.g4md$/, ''), alt = (seen[mb] = seen[mb] || []);
       if (!alt.includes(skin)) alt.push(skin);
       const a = alt.indexOf(skin); if (a > 1) continue;
       const tex = file.split('/').pop().replace(/\.g4tx$/, ''), name = `${tex.slice(0, 5)}${mb.slice(-2)}${tex.slice(7)}_${a}`;
-      if (jobs.some(j => j.name === name)) continue;   // two meshes of the same body variant: one bust
-      jobs.push({ ti, file, mesh, skin, name });
+      // a cut of the kit (sleeves rolled up, bare shoulders, navel …: a mesh outside the kit's own folder) has only the
+      // <mesh>_<texture>_00 card; a body of the kit has <name>0 / <name>1 and, for its first neck, <mesh>_<texture>_00 too
+      const cut = home && !mesh.startsWith(home + '/'), byMesh = `${mb}_${tex}_00`;
+      const stems = cut ? [byMesh] : [name + '0', name + '1', ...(a === 0 ? [byMesh] : [])];
+      const key = cut ? byMesh : name;
+      if (jobs.some(j => j.key === key)) continue;   // two meshes of the same body variant: one bust
+      jobs.push({ ti, file, mesh, skin, name, key, stems });
     }
   }
-  const texCache = {};
+  const texCache = {}, made = {}, missing = [];
   for (const [j, job] of jobs.entries()) {
     if (progress) progress(j + 1, jobs.length);
     if (!texCache[job.file]) texCache[job.file] = await readKitTop(job.file);
     const tx = texCache[job.file]; if (!tx.top) continue;
     let shirtRaw, skinRaw;
-    try { [shirtRaw, skinRaw] = await Promise.all([loadMesh(job.mesh), loadMesh(job.skin)]); } catch (e) { console.warn('bust skipped', job.name, e.message); continue; }
+    try { [shirtRaw, skinRaw] = await Promise.all([loadMesh(job.mesh), loadMesh(job.skin)]); } catch (e) { console.warn('bust: no model', job.name, e.message); missing.push(job); continue; }
     const v = bustVariant(job.mesh);
     let cam = BUST_CAMS[v];
     if (!cam) {   // another body: the camera of the variant with the nearest neck
@@ -152,10 +166,19 @@ async function makeBusts(k, base, progress) {
     const shirt = shirtRaw.filter(m => m.mat !== 1).map(m => posed(m, pose)), skin = skinRaw.map(m => posed(m, pose));
     const img = BustRenderer.render(shirt, skin, tx.parts, [cam[2], neckTop(skin) + cam[3], cam[1]]);
     const enc = rgba => { const out = new Uint8Array(256 * 256); BC7.encode(rgba, 256, 256, out, 0); return out; };
-    const g4 = G4TX.build(BUST_TPL, [job.name + '0_1', job.name + '0_2'], [enc(img.colour), enc(img.mask)]);
-    await writeAt([MOD, ...BUST_DIR, job.name + '0_l.g4tx'], g4);
-    names.push(job.name + '0');
+    const blobs = [enc(img.colour), enc(img.mask)]; made[job.key] = { job, blobs };
+    names.push(...await writeBust(job.stems, blobs));
     if (!(j % 3)) await sleep(0);
+  }
+  // Bodies whose models the reference folder does not have (the special ones: variants 31, 35, 41, 42 / 81, 85, 91, 92 …):
+  // without a card picture the game shows those players' cards empty, so they take the picture of the standard body
+  // (variant 01, or 51 for a goalkeeper) of the same texture
+  for (const job of missing) {
+    const gk = +job.name.slice(5, 7) > 50, alt = job.name.slice(-1);
+    const score = m => (m.job.ti === job.ti ? 0 : 8) + ((+m.job.name.slice(5, 7) > 50) === gk ? 0 : 4) + (m.job.name.slice(-1) === alt ? 0 : 2) + (/^(01|51)$/.test(m.job.name.slice(5, 7)) ? 0 : 1);
+    const src = Object.values(made).sort((a, b) => score(a) - score(b))[0];
+    if (!src) continue;
+    names.push(...await writeBust(job.stems, src.blobs));
   }
   return names;
 }

@@ -1,5 +1,5 @@
-Custom Kits 2.0 - kits and crests for Inazuma Fantasy
-=====================================================
+Custom Kits 2.1.1 - kits and crests for Inazuma Fantasy
+=======================================================
 
 What it is
   An app that runs on your PC (in Microsoft Edge or Google Chrome) and makes
@@ -20,6 +20,7 @@ You need
 How to use it
   1. Unzip everything first (the app does not work from inside a zip),
      NOT inside the game's mods folder: the app is not a mod.
+     NOT inside Program Files either (see below).
      Open "Custom Kits.bat".
   2. Choose the game's mods folder (the one next to nie.exe), then
      "Connect the reference folder..." and choose the reference folder.
@@ -34,3 +35,10 @@ Notes
     name, switched on or off on its own in the launcher.
   - Before you delete a kit or a crest, take it off your teams.
   - Do not use online play or cross-save with mods.
+
+Program Files
+  Edge and Chrome do not let a page open folders inside Program Files,
+  Program Files (x86), Windows or AppData. Keep this app AND the game outside
+  them. If the game is in Steam's default library (C:\Program Files (x86)\Steam),
+  move it in Steam: right-click the game > Properties > Installed Files >
+  Move install folder, to another library (for example D:\SteamLibrary).

@@ -36,9 +36,10 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 const PT_HTML = {
-  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.1',
+  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.1.1',
   'c.title': 'Liga a pasta «mods» do Fantasy',
   'c.where': 'É a pasta <b>mods</b> que está dentro da pasta do jogo, ao lado do <b>nie.exe</b> (lá dentro estão o VRFW, o BetterQoL e os outros mods). Por exemplo:',
+  'c.blocked': '⚠ O Edge e o Chrome não conseguem abrir pastas dentro de <b>Program Files</b> (nem Windows / AppData). Mantém esta app e o jogo fora delas. Se o jogo estiver na biblioteca padrão do Steam (<b>C:\Program Files (x86)\Steam</b>), muda-o no Steam: <b>Propriedades → Ficheiros instalados → Mover pasta de instalação</b>.',
   'c.resume': 'Continuar com a pasta',
   'c.pick': 'Escolher a pasta mods…',
   'c.ref': 'Depois podes ligar também a pasta <b>reference</b> (os ficheiros do jogo, só leitura): dá-te todas as bases de equipamentos, os emblemas do jogo, o 3D e os cartões dos jogadores. Sem ela tens as bases sem patrocínios e os emblemas feitos a partir de imagens tuas.',
@@ -188,9 +189,10 @@ const PT = {
 };
 
 const ES_HTML = {
-  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.1",
+  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.1.1",
   "c.title": "Conecta la carpeta «mods» de Fantasy",
   "c.where": "Es la carpeta <b>mods</b> que está dentro de la carpeta del juego, junto a <b>nie.exe</b> (dentro están VRFW, BetterQoL y los demás mods). Por ejemplo:",
+  "c.blocked": "⚠ Edge y Chrome no pueden abrir carpetas dentro de <b>Program Files</b> (ni Windows / AppData). Mantén esta app y el juego fuera de ellas. Si el juego está en la biblioteca predeterminada de Steam (<b>C:\Program Files (x86)\Steam</b>), muévelo en Steam: <b>Propiedades → Archivos instalados → Mover carpeta de instalación</b>.",
   "c.resume": "Continuar con la carpeta",
   "c.pick": "Elegir la carpeta mods…",
   "c.ref": "Después también puedes conectar la carpeta <b>reference</b> (los archivos del juego, solo lectura): te da todas las bases de equipaciones, los escudos del juego, la vista 3D y las tarjetas de los jugadores. Sin ella tienes las equipaciones sin patrocinadores y los escudos hechos con tus propias imágenes.",
