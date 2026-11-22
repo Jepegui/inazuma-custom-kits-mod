@@ -92,26 +92,29 @@ async function checkRef(h) { // the reference folder, or the folder that holds i
   try { await dirAt(['data', 'dx11', 'chr', '_uniform'], false, h); return h; } catch (e) { /* maybe its parent */ }
   try { const r = await h.getDirectoryHandle('reference'); await dirAt(['data', 'dx11', 'chr', '_uniform'], false, r); return r; } catch (e) { return null; }
 }
-let refConnecting = null;   // one connection at a time (the start's own and a click can meet)
-function connectRef(ask) { return refConnecting || (refConnecting = connectRef1(ask).finally(() => { refConnecting = null; })); }
+let refConnecting = null;   // the start's own connection (no asking); a click never waits for it
+function connectRef(ask) {
+  if (ask) return connectRef1(true);
+  return refConnecting || (refConnecting = connectRef1(false).finally(() => { refConnecting = null; }));
+}
 let migrating = Promise.resolve();   // the kits' textures renamed at the start: the cards wait for it
 async function connectRef1(ask) {
-  await migrating;
+  // a click opens the folder picker at once: the browser shows it only right after the click (before 2.1.2 the app first
+  // asked again for the folder remembered, and when that folder had been moved or its permission refused, nothing opened)
   let h = await savedHandle('ref');
-  try {
-    if (h) {
-      let p = h.queryPermission ? await h.queryPermission({ mode: 'read' }) : 'granted';
-      if (p !== 'granted' && ask && h.requestPermission) p = await h.requestPermission({ mode: 'read' });
-      if (p !== 'granted') h = null;
-    }
-    if (!h && ask) h = await window.showDirectoryPicker({ mode: 'read', id: 'inazuma-reference' });
-  } catch (e) { h = null; }
+  try { if (h && (!h.queryPermission || await h.queryPermission({ mode: 'read' }) !== 'granted')) h = null; } catch (e) { h = null; }
+  if (h && !(await checkRef(h))) h = null;   // the folder remembered moved or emptied
+  if (!h && ask) {
+    try { h = await window.showDirectoryPicker({ mode: 'read', id: 'inazuma-reference' }); }
+    catch (e) { if (e && e.name !== 'AbortError') { console.error(e); status(T('The browser did not open the folder window: click «Connect the reference folder…» again.'), 'err'); } h = null; }
+  }
   if (!h) { renderRefBox(); return; }
   const r = await checkRef(h);
   if (!r) { status(T('That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).'), 'err'); renderRefBox(); return; }
   refRoot = r;
   try { await idb('readwrite', s => s.put(r, 'ref')); } catch (e) { /* not remembered */ }
   status(''); renderRefBox(); await renderBases(); if (mode === 'emblem') await renderEmblemBases();
+  await migrating;
   if (store.kits.some(kitPending)) await bustsForAll();   // the cards and icons of the kits made before
 }
 function renderRefBox() {

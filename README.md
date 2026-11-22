@@ -10,7 +10,7 @@ Custom Kits is a small app that runs in your browser, on your own PC. With it yo
 
 ## Download and use
 
-1. Go to [**Releases**](../../releases) and download `CustomKits-2.1.1.zip`. It holds the app and the **reference** folder (the game's files the app reads).
+1. Go to [**Releases**](../../releases) and download `CustomKits-2.1.2.zip`. It holds the app and the **reference** folder (the game's files the app reads).
 2. **Unzip it** where you like, for example in `C:\Games`, but **not inside Program Files** (see below). You get a `Custom Kits` folder with `Custom Kits.bat`, `custom-kits.html` and the `reference` folder (with a `data` folder inside it). The reference folder gives you every kit base, the game's crests, the 3D view and the player cards.
 3. Open **Custom Kits.bat** (it opens the app in Microsoft Edge). You can also open `custom-kits.html` in Edge or Chrome yourself.
 4. Choose the game's **mods** folder: the one next to `nie.exe`, with VRFW and BetterQoL in it. Then click **Connect the reference folder…** and choose the `reference` folder.
@@ -77,7 +77,7 @@ python build.py
 O Custom Kits é uma app que corre no browser, no teu PC, e cria **equipamentos** e **emblemas** novos para o *Inazuma Eleven: Victory Road* com o mod **Inazuma Fantasy**. Ficam à venda na loja geral do jogo; os do jogo ficam como estão. A app está em inglês, português e espanhol.
 
 Para usar:
-1. Em [**Releases**](../../releases), descarrega o `CustomKits-2.1.1.zip`. Tem a app e a pasta **reference** (os ficheiros do jogo que a app lê).
+1. Em [**Releases**](../../releases), descarrega o `CustomKits-2.1.2.zip`. Tem a app e a pasta **reference** (os ficheiros do jogo que a app lê).
 2. **Descomprime-o** onde quiseres, por exemplo em `C:\Games`, mas **não dentro de Program Files**. Fica uma pasta `Custom Kits` com o `Custom Kits.bat`, o `custom-kits.html` e a pasta `reference` (com uma pasta `data` lá dentro). A pasta reference dá-te todas as bases, os emblemas do jogo, o 3D e os cartões dos jogadores.
 3. Abre o **Custom Kits.bat**, escolhe a pasta **mods** do jogo e depois carrega em **Ligar a pasta reference…** e escolhe a pasta `reference`.
 4. No fim, liga o mod **Custom Kits** no launcher. Fecha sempre o jogo antes de gerar ou apagar alguma coisa.
@@ -93,7 +93,7 @@ Podes ter vários mods: em cima, em **Mod**, carrega em **+ Novo** para criar ou
 Custom Kits es una aplicación que funciona en el navegador, en tu PC, y crea **equipaciones** y **escudos** nuevos para *Inazuma Eleven: Victory Road* con el mod **Inazuma Fantasy**. Se venden en la tienda general del juego; los del juego no cambian. La aplicación está en inglés, portugués y español.
 
 Para usarla:
-1. En [**Releases**](../../releases), descarga `CustomKits-2.1.1.zip`. Tiene la aplicación y la carpeta **reference** (los archivos del juego que la aplicación lee).
+1. En [**Releases**](../../releases), descarga `CustomKits-2.1.2.zip`. Tiene la aplicación y la carpeta **reference** (los archivos del juego que la aplicación lee).
 2. **Descomprímelo** donde quieras, por ejemplo en `C:\Games`, pero **no dentro de Program Files**. Queda una carpeta `Custom Kits` con `Custom Kits.bat`, `custom-kits.html` y la carpeta `reference` (con una carpeta `data` dentro). La carpeta reference te da todas las bases, los escudos del juego, la vista 3D y las tarjetas de los jugadores.
 3. Abre **Custom Kits.bat**, elige la carpeta **mods** del juego y después pulsa **Conectar la carpeta reference…** y elige la carpeta `reference`.
 4. Al final, activa el mod **Custom Kits** en el launcher. Cierra siempre el juego antes de generar o borrar algo.

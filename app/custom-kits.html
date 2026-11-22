@@ -133,7 +133,7 @@ details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor
 </style>
 </head>
 <body>
-<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.1.1</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
+<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.1.2</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
 
 <section id="connect">
   <h2 data-t="c.title">Connect Fantasy’s «mods» folder</h2>
@@ -322,7 +322,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 const PT_HTML = {
-  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.1.1',
+  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.1.2',
   'c.title': 'Liga a pasta «mods» do Fantasy',
   'c.where': 'É a pasta <b>mods</b> que está dentro da pasta do jogo, ao lado do <b>nie.exe</b> (lá dentro estão o VRFW, o BetterQoL e os outros mods). Por exemplo:',
   'c.blocked': '⚠ O Edge e o Chrome não conseguem abrir pastas dentro de <b>Program Files</b> (nem Windows / AppData). Mantém esta app e o jogo fora delas. Se o jogo estiver na biblioteca padrão do Steam (<b>C:\Program Files (x86)\Steam</b>), muda-o no Steam: <b>Propriedades → Ficheiros instalados → Mover pasta de instalação</b>.',
@@ -385,6 +385,7 @@ const PT = {
   'On the launcher’s Mods page, check that «{mod}» is switched on.': 'Na página Mods do launcher, confirma que «{mod}» está ligado.',
   // folders
   'connect the reference folder first': 'liga primeiro a pasta reference',
+  'The browser did not open the folder window: click «Connect the reference folder…» again.': 'O browser não abriu a janela das pastas: carrega outra vez em «Ligar a pasta reference…».',
   'That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).': 'Essa pasta não tem os ficheiros do jogo. Escolhe a pasta «reference» (a que tem data\\dx11 lá dentro).',
   'Reference folder connected: the game’s crests are below.': 'Pasta reference ligada: os emblemas do jogo estão aqui em baixo.',
   'Reference folder connected: {n} bases.': 'Pasta reference ligada: {n} bases.',
@@ -475,7 +476,7 @@ const PT = {
 };
 
 const ES_HTML = {
-  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.1.1",
+  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.1.2",
   "c.title": "Conecta la carpeta «mods» de Fantasy",
   "c.where": "Es la carpeta <b>mods</b> que está dentro de la carpeta del juego, junto a <b>nie.exe</b> (dentro están VRFW, BetterQoL y los demás mods). Por ejemplo:",
   "c.blocked": "⚠ Edge y Chrome no pueden abrir carpetas dentro de <b>Program Files</b> (ni Windows / AppData). Mantén esta app y el juego fuera de ellas. Si el juego está en la biblioteca predeterminada de Steam (<b>C:\Program Files (x86)\Steam</b>), muévelo en Steam: <b>Propiedades → Archivos instalados → Mover carpeta de instalación</b>.",
@@ -559,6 +560,7 @@ const ES = {
   "there are already {n} kits in your Custom Kits mods, the most the game’s texture names allow. Delete one first.": "ya hay {n} equipaciones en tus mods de Custom Kits, el máximo que permiten los nombres de las texturas del juego. Borra una primero.",
   "On the launcher’s Mods page, check that «{mod}» is switched on.": "En la página Mods del launcher, comprueba que «{mod}» está activado.",
   "connect the reference folder first": "conecta primero la carpeta reference",
+  "The browser did not open the folder window: click «Connect the reference folder…» again.": "El navegador no abrió la ventana de carpetas: pulsa otra vez «Conectar la carpeta reference…».",
   "That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).": "Esa carpeta no tiene los archivos del juego. Elige la carpeta «reference» (la que tiene data\\dx11 dentro).",
   "Reference folder connected: the game’s crests are below.": "Carpeta reference conectada: los escudos del juego están aquí abajo.",
   "Reference folder connected: {n} bases.": "Carpeta reference conectada: {n} bases.",
@@ -1527,26 +1529,29 @@ async function checkRef(h) { // the reference folder, or the folder that holds i
   try { await dirAt(['data', 'dx11', 'chr', '_uniform'], false, h); return h; } catch (e) { /* maybe its parent */ }
   try { const r = await h.getDirectoryHandle('reference'); await dirAt(['data', 'dx11', 'chr', '_uniform'], false, r); return r; } catch (e) { return null; }
 }
-let refConnecting = null;   // one connection at a time (the start's own and a click can meet)
-function connectRef(ask) { return refConnecting || (refConnecting = connectRef1(ask).finally(() => { refConnecting = null; })); }
+let refConnecting = null;   // the start's own connection (no asking); a click never waits for it
+function connectRef(ask) {
+  if (ask) return connectRef1(true);
+  return refConnecting || (refConnecting = connectRef1(false).finally(() => { refConnecting = null; }));
+}
 let migrating = Promise.resolve();   // the kits' textures renamed at the start: the cards wait for it
 async function connectRef1(ask) {
-  await migrating;
+  // a click opens the folder picker at once: the browser shows it only right after the click (before 2.1.2 the app first
+  // asked again for the folder remembered, and when that folder had been moved or its permission refused, nothing opened)
   let h = await savedHandle('ref');
-  try {
-    if (h) {
-      let p = h.queryPermission ? await h.queryPermission({ mode: 'read' }) : 'granted';
-      if (p !== 'granted' && ask && h.requestPermission) p = await h.requestPermission({ mode: 'read' });
-      if (p !== 'granted') h = null;
-    }
-    if (!h && ask) h = await window.showDirectoryPicker({ mode: 'read', id: 'inazuma-reference' });
-  } catch (e) { h = null; }
+  try { if (h && (!h.queryPermission || await h.queryPermission({ mode: 'read' }) !== 'granted')) h = null; } catch (e) { h = null; }
+  if (h && !(await checkRef(h))) h = null;   // the folder remembered moved or emptied
+  if (!h && ask) {
+    try { h = await window.showDirectoryPicker({ mode: 'read', id: 'inazuma-reference' }); }
+    catch (e) { if (e && e.name !== 'AbortError') { console.error(e); status(T('The browser did not open the folder window: click «Connect the reference folder…» again.'), 'err'); } h = null; }
+  }
   if (!h) { renderRefBox(); return; }
   const r = await checkRef(h);
   if (!r) { status(T('That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).'), 'err'); renderRefBox(); return; }
   refRoot = r;
   try { await idb('readwrite', s => s.put(r, 'ref')); } catch (e) { /* not remembered */ }
   status(''); renderRefBox(); await renderBases(); if (mode === 'emblem') await renderEmblemBases();
+  await migrating;
   if (store.kits.some(kitPending)) await bustsForAll();   // the cards and icons of the kits made before
 }
 function renderRefBox() {

@@ -36,7 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 const PT_HTML = {
-  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.1.1',
+  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.1.2',
   'c.title': 'Liga a pasta «mods» do Fantasy',
   'c.where': 'É a pasta <b>mods</b> que está dentro da pasta do jogo, ao lado do <b>nie.exe</b> (lá dentro estão o VRFW, o BetterQoL e os outros mods). Por exemplo:',
   'c.blocked': '⚠ O Edge e o Chrome não conseguem abrir pastas dentro de <b>Program Files</b> (nem Windows / AppData). Mantém esta app e o jogo fora delas. Se o jogo estiver na biblioteca padrão do Steam (<b>C:\Program Files (x86)\Steam</b>), muda-o no Steam: <b>Propriedades → Ficheiros instalados → Mover pasta de instalação</b>.',
@@ -99,6 +99,7 @@ const PT = {
   'On the launcher’s Mods page, check that «{mod}» is switched on.': 'Na página Mods do launcher, confirma que «{mod}» está ligado.',
   // folders
   'connect the reference folder first': 'liga primeiro a pasta reference',
+  'The browser did not open the folder window: click «Connect the reference folder…» again.': 'O browser não abriu a janela das pastas: carrega outra vez em «Ligar a pasta reference…».',
   'That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).': 'Essa pasta não tem os ficheiros do jogo. Escolhe a pasta «reference» (a que tem data\\dx11 lá dentro).',
   'Reference folder connected: the game’s crests are below.': 'Pasta reference ligada: os emblemas do jogo estão aqui em baixo.',
   'Reference folder connected: {n} bases.': 'Pasta reference ligada: {n} bases.',
@@ -189,7 +190,7 @@ const PT = {
 };
 
 const ES_HTML = {
-  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.1.1",
+  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.1.2",
   "c.title": "Conecta la carpeta «mods» de Fantasy",
   "c.where": "Es la carpeta <b>mods</b> que está dentro de la carpeta del juego, junto a <b>nie.exe</b> (dentro están VRFW, BetterQoL y los demás mods). Por ejemplo:",
   "c.blocked": "⚠ Edge y Chrome no pueden abrir carpetas dentro de <b>Program Files</b> (ni Windows / AppData). Mantén esta app y el juego fuera de ellas. Si el juego está en la biblioteca predeterminada de Steam (<b>C:\Program Files (x86)\Steam</b>), muévelo en Steam: <b>Propiedades → Archivos instalados → Mover carpeta de instalación</b>.",
@@ -273,6 +274,7 @@ const ES = {
   "there are already {n} kits in your Custom Kits mods, the most the game’s texture names allow. Delete one first.": "ya hay {n} equipaciones en tus mods de Custom Kits, el máximo que permiten los nombres de las texturas del juego. Borra una primero.",
   "On the launcher’s Mods page, check that «{mod}» is switched on.": "En la página Mods del launcher, comprueba que «{mod}» está activado.",
   "connect the reference folder first": "conecta primero la carpeta reference",
+  "The browser did not open the folder window: click «Connect the reference folder…» again.": "El navegador no abrió la ventana de carpetas: pulsa otra vez «Conectar la carpeta reference…».",
   "That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).": "Esa carpeta no tiene los archivos del juego. Elige la carpeta «reference» (la que tiene data\\dx11 dentro).",
   "Reference folder connected: the game’s crests are below.": "Carpeta reference conectada: los escudos del juego están aquí abajo.",
   "Reference folder connected: {n} bases.": "Carpeta reference conectada: {n} bases.",
