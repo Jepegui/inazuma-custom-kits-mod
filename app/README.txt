@@ -1,4 +1,4 @@
-Custom Kits 2.1.2 - kits and crests for Inazuma Fantasy
+Custom Kits 2.2.0 - kits and crests for Inazuma Fantasy
 =======================================================
 
 What it is
@@ -31,6 +31,8 @@ How to use it
 Notes
   - The app only writes inside its own mods (mods\CustomKits and the ones
     you make with "+ New"). Nothing leaves your computer.
+  - Under "My creations", "Edit" changes a kit you made (whoever bought it
+    gets the new version) and "Copy" starts a new kit from it.
   - More than one mod: at the top, "+ New" makes another one with its own
     name, switched on or off on its own in the launcher.
   - Before you delete a kit or a crest, take it off your teams.

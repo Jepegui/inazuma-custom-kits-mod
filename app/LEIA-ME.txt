@@ -1,4 +1,4 @@
-Custom Kits 2.1.2 - equipamentos e emblemas para o Inazuma Fantasy
+Custom Kits 2.2.0 - equipamentos e emblemas para o Inazuma Fantasy
 ===================================================================
 
 O que é
@@ -31,6 +31,8 @@ Como usar
 Notas
   - A app só escreve dentro dos seus próprios mods (mods\CustomKits e os que
     criares com "+ Novo"). Nada sai do teu computador.
+  - Em "Os meus", "Editar" muda um equipamento que já fizeste (quem
+    já o comprou fica com a versão nova) e "Copiar" começa um novo a partir dele.
   - Vários mods: em cima, "+ Novo" cria outro com nome próprio, que se liga
     ou desliga à parte no launcher.
   - Antes de apagar um equipamento ou um emblema, tira-o das tuas equipas.

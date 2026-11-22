@@ -98,16 +98,31 @@ function connectRef(ask) {
   return refConnecting || (refConnecting = connectRef1(false).finally(() => { refConnecting = null; }));
 }
 let migrating = Promise.resolve();   // the kits' textures renamed at the start: the cards wait for it
+// the folder window, opened in the click itself: nothing is awaited before it (a browser shows it only right after a click)
+function pickRef() {
+  const t0 = performance.now(), ms = () => Math.round(performance.now() - t0);
+  let p;
+  try { p = window.showDirectoryPicker({ mode: 'read', id: 'inazuma-ref' }); } catch (e) { p = Promise.reject(e); }
+  return p.then(h => { console.info(`[reference] folder chosen: ${h.name} (${ms()} ms)`); return h; }, e => {
+    console.warn(`[reference] the folder window answered ${e && e.name}: ${e && e.message} (${ms()} ms)`);
+    // a person closing the window takes longer than a second: a faster «AbortError» is the browser refusing it
+    if (e && (e.name !== 'AbortError' || ms() < 1000)) status(T('The browser did not open the folder window ({err}). Open the app by double-clicking custom-kits.html and try again.', { err: e.name }), 'err');
+    return null;
+  });
+}
+// the folder remembered, if the browser still lets the app read it (a folder that moved can leave the browser waiting: 4 s at most)
+async function savedRef() {
+  const h = await savedHandle('ref'); if (!h) return null;
+  const wait = new Promise(res => setTimeout(() => { console.warn('[reference] the folder remembered did not answer'); res(null); }, 4000));
+  return Promise.race([wait, (async () => {
+    try { if (!h.queryPermission || await h.queryPermission({ mode: 'read' }) !== 'granted') return null; } catch (e) { return null; }
+    return checkRef(h);
+  })()]);
+}
 async function connectRef1(ask) {
-  // a click opens the folder picker at once: the browser shows it only right after the click (before 2.1.2 the app first
-  // asked again for the folder remembered, and when that folder had been moved or its permission refused, nothing opened)
-  let h = await savedHandle('ref');
-  try { if (h && (!h.queryPermission || await h.queryPermission({ mode: 'read' }) !== 'granted')) h = null; } catch (e) { h = null; }
-  if (h && !(await checkRef(h))) h = null;   // the folder remembered moved or emptied
-  if (!h && ask) {
-    try { h = await window.showDirectoryPicker({ mode: 'read', id: 'inazuma-reference' }); }
-    catch (e) { if (e && e.name !== 'AbortError') { console.error(e); status(T('The browser did not open the folder window: click «Connect the reference folder…» again.'), 'err'); } h = null; }
-  }
+  // a click always opens the folder window at once (2.1.3): before, the app first looked at the folder remembered, and in the
+  // window the .bat opens that could take long enough (or never end) for the browser to refuse the folder window
+  let h = ask ? await pickRef() : await savedRef();
   if (!h) { renderRefBox(); return; }
   const r = await checkRef(h);
   if (!r) { status(T('That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).'), 'err'); renderRefBox(); return; }
@@ -322,9 +337,15 @@ function buildPalette(px, n, alpha = false) {
   pal.forEach(p => { p.count = p.count / Math.max(1, seen) * n; });   // the shares shown are of the visible pixels
   return { pal, idx, idx2, wt };
 }
+// a texture's starting file: the kit's own (editing or copying a kit made before) or the base's
+const kitFileOf = ti => cur && cur.from && cur.from.files && cur.from.files[ti];
+function srcFile(ti) {
+  const f = kitFileOf(ti);
+  return f ? fileAt([MOD, 'assets', 'chr', ...f.split('/')]) : texFile(cur.base, cur.base.textures[ti]);
+}
 async function loadTexture(ti) {
   const t = cur.tex[ti]; if (t.images) return;
-  const bytes = new Uint8Array(await (await texFile(cur.base, cur.base.textures[ti])).arrayBuffer());
+  const bytes = new Uint8Array(await (await srcFile(ti)).arrayBuffer());
   const g = G4TX.parse(bytes); t.images = [];
   for (const e of g.ents) {
     // the images _20 (top), _30 (bottom) and the extra parts (_21, _22, _40 …, _10 a whole suit), with their occlusion maps
@@ -473,6 +494,13 @@ ${STATE_TAG}${JSON.stringify(store)}
 }
 async function writeMod() {
   const files = modFiles(), enc = new TextEncoder();
+  // every file is checked before anything is written: one wrong line and VRFW refuses the whole file
+  for (const [p, text] of Object.entries(files)) if (p.endsWith('.toml') && typeof text === 'string') {
+    try { TOML.parse(text); } catch (e) {
+      console.error(p, e);
+      throw new Error(T('{file} came out wrong ({err}): the mod was left as it was. Please tell the app’s author.', { file: p, err: String(e.message).split('\n')[0] }));
+    }
+  }
   // leftovers of the first tests (X variants) and files of kits that are gone
   await removeAt(['MeusKits'], true);   // the test mod this tool replaces
   const optional = ['content/looks/custom_kits.toml', 'content/items/kits.toml', 'content/images/menu/200_icon/02_icon_item/custom_kits_icons.toml', 'content/sprite_redirects/kit_icons.toml', 'addons/InazumaFantasy/content/shops/kits.toml', ...EMBLEM_TOMLS];
@@ -555,10 +583,12 @@ function renderMyKits() {
   const box = $('#mine'); box.textContent = '';
   if (!store.kits.length && !store.emblems.length) { box.append(el('p', { class: 'hint', text: T('You have not made anything yet.') })); return; }
   if (store.kits.length) box.append(el('div', { class: 'mine-h', text: T('Kits') }));
-  for (const k of store.kits) box.append(el('div', { class: 'row mine' },
+  for (const k of store.kits) box.append(el('div', { class: 'row mine kit' },
     el('span', { class: 'dot', style: `background:${k.color || '#888'}` }),
     el('span', { class: 'grow' }, el('b', { text: k.name }), el('small', { text: ` · ${tokens(k.price)}` })),
-    el('button', { class: 'danger', text: T('Delete'), onclick: () => deleteKit(k) })));
+    el('span', { class: 'acts' }, el('button', { text: T('Edit'), title: T('Change this kit (the game keeps it: whoever bought it gets the new version)'), onclick: () => openKit(k, false) }),
+    el('button', { text: T('Copy'), title: T('A new kit that starts from this one'), onclick: () => openKit(k, true) }),
+    el('button', { class: 'danger', text: T('Delete'), onclick: () => deleteKit(k) }))));
   if (store.emblems.length) box.append(el('div', { class: 'mine-h', text: T('Crests') }));
   for (const e of store.emblems) {
     const cv = el('canvas', { width: 64, height: 64, class: 'mthumb' });
@@ -879,6 +909,28 @@ async function startKit(base, row) {
   busy = false; showStep();
 }
 
+// a kit made before, opened again: edited in place (same item, slot and files) or copied into a new kit. It starts from the
+// kit's own textures (its colours, crests and pictures are in them; the crests can no longer be moved one by one)
+async function openKit(k, copy) {
+  if (busy) return;
+  const base = findBase(k);
+  if (!base) { status(k.src === 'ref' ? T('Connect the reference folder first: this kit was made from one of its bases.') : T('The base of this kit was not found.'), 'err'); return; }
+  if (anyEdit() && !confirm(isEmblem() ? T('You have changes not generated yet in this crest. Switch anyway?') : T('You have changes not generated yet in this kit. Switch anyway?'))) return;
+  if (mode !== 'kit') await setMode('kit');
+  if (view3d) setView3d(false);
+  busy = true;
+  document.querySelectorAll('#bases .row').forEach(r => r.classList.remove('on'));
+  cur = { type: 'kit', base, from: k, copy, tex: base.textures.map(() => ({ images: null })), t: 0, i: 0, sel: null, step: 0, icon: null, finished: false, num: { ...(k.num || {}) } };
+  $('#kitname').value = copy ? T('{name} (copy)', { name: k.name }) : k.name; $('#kitprice').value = String(k.price ?? 1);
+  try {
+    if (k.customIcon) { try { cur.icon = await createImageBitmap(await fileAt([...ICON_DIR_OF(), `${kitIconKey(k)}.png`])); } catch (e) { /* made again */ } }
+    const main = base.textures.map((t, i) => i).filter(i => !base.textures[i].kind);
+    for (const [j, i] of main.entries()) { status(T('Opening «{name}»: {n} of {t}…', { name: k.name, n: j + 1, t: main.length })); await sleep(20); await loadTexture(i); }
+    status(copy ? T('Copying «{name}»: change what you want and generate it as a new kit.', { name: k.name }) : T('Editing «{name}»: generate it again to save the changes.', { name: k.name }), 'ok');
+  } catch (e) { status(T('Could not open this kit: ') + e.message, 'err'); cur = null; }
+  busy = false; showStep();
+}
+
 // ---------- images from files
 async function pickImage() {
   return new Promise(res => { const i = el('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp' }); i.onchange = () => res(i.files[0] || null); i.click(); });
@@ -969,14 +1021,16 @@ async function generate() {
   if (!name) { status(T('Give the kit a name before generating it.'), 'err'); $('#kitname').focus(); return; }
   busy = true; $('#next').disabled = true; $('#prev').disabled = true;
   try {
-    const n = Math.max(store.next || 0, store.kits.reduce((m, k) => Math.max(m, k.n), 0)) + 1, files = [], slot = freeSlot();
+    // editing a kit: its number, item, icon and texture slot stay (the saves know it by its item); a copy is a new kit
+    const old = cur.from && !cur.copy && store.kits.includes(cur.from) ? cur.from : null;
+    const n = old ? old.n : Math.max(store.next || 0, store.kits.reduce((m, k) => Math.max(m, k.n), 0)) + 1, files = [], slot = old ? kitSlot(old) : freeSlot();
     if (slot == null) throw new Error(T('there are already {n} kits in your Custom Kits mods, the most the game’s texture names allow. Delete one first.', { n: MAX_SLOT }));
-    const ids = { item: `kit_${uidOf()}_${n}`, icon: `uni_ck${uidOf()}${pad(n, 4)}`, slot };
+    const ids = old ? { item: old.item, icon: kitIconKey(old), slot } : { item: `kit_${uidOf()}_${n}`, icon: `uni_ck${uidOf()}${pad(n, 4)}`, slot };
     for (let ti = 0; ti < cur.base.textures.length; ti++) {
       const t = cur.base.textures[ti];
-      if (t.kind && !(cur.tex[ti].images || []).some(edited)) { files.push(null); continue; }
+      if (t.kind && !(cur.tex[ti].images || []).some(edited) && !kitFileOf(ti)) { files.push(null); continue; }
       status(T('Generating {n} of {t}: {what}…', { n: ti + 1, t: cur.base.textures.length, what: roleLabel(t.role) })); await sleep(30);
-      const bytes = new Uint8Array(await (await texFile(cur.base, t)).arrayBuffer()), g = G4TX.parse(bytes);
+      const bytes = new Uint8Array(await (await srcFile(ti)).arrayBuffer()), g = G4TX.parse(bytes);
       for (const im of cur.tex[ti].images || []) if (edited(im)) { G4TX.replaceEntry(bytes, g.ents.find(x => x.name === im.entry), finalPixels(im)); await sleep(); }
       const dir = t.path.split('/').slice(0, -1), fname = texName(slot, ti, t) + '.g4tx';
       await writeAt([MOD, 'assets', 'chr', ...dir, fname], bytes);
@@ -986,16 +1040,19 @@ async function generate() {
     if (!cur.icon) await refreshIcon3d();
     drawIconPreview();
     await writeAt([...ICON_DIR_OF(), `${ids.icon}.png`], await new Promise(r => $('#iconview').toBlob(r, 'image/png')));
-    const kit = { n, ...ids, name, price, base: cur.base.id, src: cur.base.src, files, num: { ...cur.num }, color: toHex(kitColours()[0]), icon3d: !cur.icon && cur.icon3d ? ICON_REV : false, customIcon: !!cur.icon };
+    const kit = { ...(old || {}), n, ...ids, name, price, base: cur.base.id, src: cur.base.src, files, num: { ...cur.num }, color: toHex(kitColours()[0]), icon3d: !cur.icon && cur.icon3d ? ICON_REV : false, customIcon: !!cur.icon };
+    delete kit.busts; delete kit.bustRev;
     if (refRoot) {
       try { kit.busts = await makeBusts(kit, cur.base, (i, t) => status(T('Generating the player cards: {n} of {t}…', { n: i, t }))); kit.bustRev = BUST_REV; }
       catch (e) { console.error(e); status(T('The player cards were not generated: ') + e.message, 'err'); await sleep(1500); }
     }
-    store.rev++; store.next = n; store.kits.push(kit);
+    if (old) store.kits[store.kits.indexOf(old)] = kit; else { store.next = n; store.kits.push(kit); }
+    store.rev++;
     await writeMod();
     renderMyKits(); status('');
     cur.finished = true;
-    doneSteps(name, [T('On the launcher’s Mods page, check that «{mod}» is switched on.', { mod: modName() }), T('Open the game through Steam and choose Fantasy.'), T('Go to the General Store (General Store → Kits). The kit costs {price}.', { price: tokens(price) })]);
+    if (old) doneSteps(name, [T('Close and reopen the game: whoever already bought it sees the new version (nothing to buy again).')]);
+    else doneSteps(name, [T('On the launcher’s Mods page, check that «{mod}» is switched on.', { mod: modName() }), T('Open the game through Steam and choose Fantasy.'), T('Go to the General Store (General Store → Kits). The kit costs {price}.', { price: tokens(price) })]);
   } catch (e) { console.error(e); status(T('Something went wrong while generating: ') + e.message, 'err'); }
   busy = false; $('#next').disabled = false; showStep();
 }

@@ -19,7 +19,7 @@ busts = ('const BUST_POSES = ' + read('data', 'poses.json') + ';\n'
          'const BUST_TPL = ' + read('data', 'bust_tpl.json') + ';\n'
          'const EMBLEM_TPL = ' + read('data', 'emblem_tpl.json') + ';\n' + read('busts.js'))
 js = lambda x: '<script>\n' + x + '\n</script>\n'
-html = page.replace('<!--SCRIPTS-->', js(read('i18n.js')) + js(read('codec.js')) + js(read('viewer3d.js')) + js(busts) + js(data) + js(app) + js(read('emblems.js')))
+html = page.replace('<!--SCRIPTS-->', js(read('lib', 'toml.min.js')) + js(read('i18n.js')) + js(read('codec.js')) + js(read('viewer3d.js')) + js(busts) + js(data) + js(app) + js(read('emblems.js')))
 out = os.path.join(here, 'app', 'custom-kits.html')
 open(out, 'w', encoding='utf-8', newline='\n').write(html)
 print(f'{out}: {len(html) // 1024} KB, {len(ares)} + {len(ref)} bases')

@@ -38,6 +38,9 @@ aside h2 { font-size:13px; text-transform:uppercase; letter-spacing:.8px; color:
 .row.on { border-color:var(--accent); background:#2b3246; }
 .row.missing { opacity:.4; }
 .row.mine { background:var(--panel2); border:1px solid var(--line); border-radius:7px; margin-bottom:6px; }
+.row.mine.kit { flex-wrap:wrap; row-gap:6px; }
+.row.mine .acts { flex-basis:100%; display:flex; gap:6px; justify-content:flex-end; }
+.row.mine .acts button { font-size:12px; padding:4px 10px; }
 .grow { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .row small { color:var(--dim); font-size:12px; }
 .thumb { width:38px; height:38px; border-radius:6px; border:1px solid var(--line); background:#0b0e14; flex:none; }
@@ -133,7 +136,7 @@ details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor
 </style>
 </head>
 <body>
-<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.1.2</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
+<header><h1>Custom Kits</h1><span data-t="sub">Kits and crests for Inazuma Fantasy · version 2.2.0</span><p id="status"></p><select id="langpick" title="Language / Idioma"></select></header>
 
 <section id="connect">
   <h2 data-t="c.title">Connect Fantasy’s «mods» folder</h2>
@@ -284,6 +287,80 @@ details { border-top:1px solid var(--line); padding-top:10px; } summary { cursor
   </div>
 </main>
 <script>
+/* smol-toml 1.9.1 (https://github.com/squirrelchat/smol-toml), only its parse(): checks the files before they are written.
+ * Copyright (c) Squirrel Chat et al., All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+(()=>{function L(e,i){let r=e.slice(0,i).split(/\r?\n/);return[r.length,r.pop().length+1]}function P(e,i,r){let t=e.split(/\r?\n/),a="",l=(Math.log10(i+1)|0)+1;for(let n=i-1;n<=i+1;n++){let o=t[n-1];o&&(a+=n.toString().padEnd(l," "),a+=":  ",a+=o,a+=`
+`,n===i&&(a+=" ".repeat(l+r+2),a+=`^
+`))}return a}var s=class e extends Error{line;column;codeblock;constructor(i,r){let[t,a]=L(r.toml,r.ptr),l=P(r.toml,t,a);super(`Invalid TOML document: ${i}
+
+${l}`,r),this.line=t,this.column=a,this.codeblock=l}static x(i,r,t){throw new e(i,{toml:r.s,ptr:t??r.p})}};function b(e){let i=e.p,r=e.s.charCodeAt(e.p++),t=r,a=r===39,l=r===e.s.charCodeAt(e.p)&&r===e.s.charCodeAt(e.p+1);l&&((r=e.s.charCodeAt(e.p+=2))===10?e.p++:r===13&&e.s.charCodeAt(e.p+1)===10&&(e.p+=2));let n="",o=e.p,f=0;for(;e.p<e.s.length;e.p++)if(r=e.s.charCodeAt(e.p),l&&(r===10||r===13&&e.s.charCodeAt(e.p+1)===10))f=f&&3;else if(r<32&&r!==9||r===127)s.x("control characters are not allowed in strings",e);else if((!f||f===3)&&r===t&&(!l||e.s.charCodeAt(e.p+1)===t&&e.s.charCodeAt(e.p+2)===t)){if(l&&(e.s.charCodeAt(e.p+3)===t&&e.p++,e.s.charCodeAt(e.p+3)===t&&e.p++),!f){let u=e.s.slice(o,e.p);n=n?n+u:u}return e.p+=l?3:1,n}else if(!f)!a&&r===92&&(n+=e.s.slice(o,o=e.p),f=1);else if(f===1)if(r===120||r===117||r===85){let u=e.p++-1,p=0,d=r===120?2:r===117?4:8;for(let A=0;A<d;A++,e.p++){let g=e.s.charCodeAt(e.p),v=g>=48&&g<=57?g-48:g>=65&&g<=70?g-65+10:g>=97&&g<=102?g-97+10:-1;v<0&&s.x("invalid non-hex character in unicode escape",e),p=p<<4|v}(p<0||p>1114111||p>=55296&&p<=57343)&&s.x("invalid unicode escape",e,u),n+=String.fromCodePoint(p),o=e.p--,f=0}else l&&(r===32||r===9)?f=2:(r===98?n+="\b":r===116?n+="	":r===110?n+=`
+`:r===102?n+="\f":r===114?n+="\r":r===101?n+="\x1B":r===34?n+='"':r===92?n+="\\":s.x("unrecognised escape sequence",e),o=e.p+1,f=0);else r!==32&&r!==9&&(f===2&&s.x("invalid escape: only line-ending whitespace may be escaped",e,o),f=!a&&r===92?1:0,o=e.p);s.x("unfinished string",e,i)}var Z=/^(\d{4}-\d{2}-\d{2})?[Tt ]?(?:(\d{2}):\d{2}(?::\d{2}(?:\.\d+)?)?)?(Z|z|[-+]\d{2}:\d{2})?$/i,C=class e extends Date{#r=!1;#i=!1;#e=null;constructor(i,r,t){let a=!0,l=!0,n="Z",o;if(typeof i=="string")if(r)e:{if(r<3){if(+i.slice(11,13)>23){i="";break e}r===2?(n=null,i+="Z"):(o=i.charCodeAt(i.length-1))!==90&&o!==122&&(n=i.slice(i.length-6)),t&&(i=i.slice(0,10)+"T"+i.slice(11))}else r===4&&(i=+i.slice(0,2)>23?"":`0000-01-01T${i}Z`);a=r!==4,l=r!==3}else{let f=i.match(Z);f?(f[1]||(a=!1,i=`0000-01-01T${i}`),l=!!f[2],l&&i[10]===" "&&(i=i.replace(" ","T")),f[2]&&+f[2]>23?i="":(n=f[3]||null,!n&&l&&(i+="Z"))):i=""}super(i),isNaN(this.getTime())||(this.#r=a,this.#i=l,this.#e=n)}isDateTime(){return this.#r&&this.#i}isLocal(){return!this.#r||!this.#i||!this.#e}isDate(){return this.#r&&!this.#i}isTime(){return this.#i&&!this.#r}isValid(){return this.#r||this.#i}toISOString(){let i=super.toISOString();if(this.isDate())return i.slice(0,10);if(this.isTime())return i.slice(11,23);if(this.#e===null)return i.slice(0,-1);if(this.#e==="Z"||this.#e==="z")return i;let r=+this.#e.slice(1,3)*60+ +this.#e.slice(4,6);return r=this.#e[0]==="-"?r:-r,new Date(this.getTime()-r*6e4).toISOString().slice(0,-1)+this.#e}static wrapAsOffsetDateTime(i,r="Z"){let t=new e(i);return t.#e=r,t}static wrapAsLocalDateTime(i){let r=new e(i);return r.#e=null,r}static wrapAsLocalDate(i){let r=new e(i);return r.#i=!1,r.#e=null,r}static wrapAsLocalTime(i){let r=new e(i);return r.#r=!1,r.#e=null,r}};function h(e,i=10){return i===16?e>47&&e<58||e>64&&e<71||e>96&&e<103:e>47&&e<48+i}function O(e,i){return e===32||e===9||e===10||e===13||i&&(e===i||e===44)||e===35}function T(e,i){let r=e.p,t=e.s.charCodeAt(e.p);if(t===91||t===123){e.d--||s.x("document contains excessively nested structures. aborting.",e);let a=t===91?I(e):S(e);return e.d++,a}return t===34||t===39?b(e):t===116?((e.s.charCodeAt(++e.p)!==114||e.s.charCodeAt(++e.p)!==117||e.s.charCodeAt(++e.p)!==101)&&s.x("invalid value",e,r),e.p++,!0):t===102?((e.s.charCodeAt(++e.p)!==97||e.s.charCodeAt(++e.p)!==108||e.s.charCodeAt(++e.p)!==115||e.s.charCodeAt(++e.p)!==101)&&s.x("invalid value",e,r),e.p++,!1):t===43||t===45?y(e,e.p,e.s.charCodeAt(++e.p),44-t,i):e.s.charCodeAt(e.p+4)===45&&e.s.charCodeAt(e.p+7)===45?z(e,t,i):e.s.charCodeAt(e.p+2)===58?V(e,t,i):y(e,e.p,t,0,i)}function y(e,i,r,t,a){let l=r,n=0,o=!1;if(l===105)return(e.s.charCodeAt(++e.p)!==110||e.s.charCodeAt(++e.p)!==102)&&s.x("invalid value",e,i),e.p++,(t||1)/0;if(l===110)return(e.s.charCodeAt(++e.p)!==97||e.s.charCodeAt(++e.p)!==110)&&s.x("invalid value",e,i),e.p++,NaN;if(l===48){if(++e.p>=e.s.length||O(l=e.s.charCodeAt(e.p),a))return e.bi===!0?0n:0;if(!t){if(l===120)return k(e,i,16,a);if(l===98)return k(e,i,2,a);if(l===111)return k(e,i,8,a)}l===46?n=2:l===101||l===69?n=4:s.x("illegal leading zero",e,i)}else h(l)||s.x("invalid value",e,i);for(;++e.p<e.s.length&&(l=e.s.charCodeAt(e.p),!O(l,a));)n||(n=1),l===95?(n&1||s.x("illegal underscore",e),n+=11,o=!0):n===1&&l===46?n=2:(n===1||n===3)&&(l===101||l===69)?n=4:n===4&&(l===43||l===45)?n=6:h(l)?n>9?n-=11:n&1||n++:s.x("illegal character in numeric literal",e);if(!n){let u=(r-48)*(t||1);return e.bi===!0?BigInt(u):u}n&1||s.x("unfinished numeric value",e,i);let f=e.s.slice(i,e.p);return o&&(f=f.replaceAll("_","")),n>1?parseFloat(f):E(e,f,10,i)}function k(e,i,r,t){let a,l=1;for(;++e.p<e.s.length&&(a=e.s.charCodeAt(e.p),!O(a,t));)a===95?(l&1&&s.x("illegal underscore",e),l=3):h(a,r)?l&1&&l--:s.x("illegal character in numeric literal",e);l&1&&s.x("unfinished numeric value",e);let n=e.s.slice(i+2,e.p);return l&&(n=n.replaceAll("_","")),E(e,n,r,i)}function E(e,i,r,t){if(e.bi!==!0)e:{let a=parseInt(i,r);if(!Number.isSafeInteger(a)){if(e.bi)break e;s.x("integer value cannot be represented losslessly",e,t)}return a}return BigInt(r===10?i:(r===2?"0b":r===8?"0o":"0x")+i)}function z(e,i,r){let t=e.p++,a;if(!h(i)||!h(e.s.charCodeAt(e.p++))||!h(e.s.charCodeAt(e.p++))||!h(e.s.charCodeAt(e.p++)))return y(e,e.p=t,i,0,r);if(e.p+=5,h(e.s.charCodeAt(e.p++))||s.x("invalid date-time: date part is malformed",e,t),e.p>=e.s.length||((i=e.s.charCodeAt(e.p))!==32||(a=!0,!h(e.s.charCodeAt(e.p+1))))&&i!==84&&i!==116){let n=e.s.slice(t,e.p);return w(e,n,3,!1,t)}if(e.s.charCodeAt(e.p+=3)!==58&&s.x("invalid date-time: time part is malformed",e,t),e.s.charCodeAt(e.p+=3)===58&&(e.p+=3),e.s.charCodeAt(e.p)===46)for(;h(e.s.charCodeAt(++e.p)););if(i=e.s.charCodeAt(e.p)){if(i===90||i===122){let n=e.s.slice(t,++e.p);return w(e,n,1,a,t,"[+00:00]")}if(i===43||i===45){let n=e.s.slice(t,e.p+=6);return w(e,n,1,a,t,!e.ld&&"["+e.s.slice(e.p-6,e.p)+"]")}}let l=e.s.slice(t,e.p);return w(e,l,2,a,t)}function V(e,i,r){let t=e.p;if(!h(i)||!h(e.s.charCodeAt(++e.p)))return y(e,--e.p,i,0,r);if(e.s.charCodeAt(e.p+=4)===58&&(e.p+=3),e.s.charCodeAt(e.p)===46)for(;h(e.s.charCodeAt(++e.p)););let a=e.s.slice(t,e.p);return w(e,a,4,!1,t)}function w(e,i,r,t,a,l){if(e.ld){let n=new C(i,r,t);return n.isValid()||s.x("invalid date",e,a),n}try{switch(l&&(i+=l),r){case 1:return Temporal.ZonedDateTime.from(i);case 2:return Temporal.PlainDateTime.from(i);case 3:return Temporal.PlainDate.from(i);case 4:return Temporal.PlainTime.from(i)}}catch(n){s.x(n instanceof Error?n.message:""+n,e,a)}}function _(e){for(;e.p<e.s.length;e.p++){let i=e.s.charCodeAt(e.p);if(i===10)break;if(i===13&&e.s.charCodeAt(e.p+1)===10){e.p++;break}(i<32&&i!==9||i===127)&&s.x("control characters are not allowed in comments",e)}}function m(e,i,r){let t;for(;e.p<e.s.length;){for(;e.p<e.s.length&&((t=e.s.charCodeAt(e.p))===32||t===9||!i&&(t===10||t===13&&e.s.charCodeAt(e.p+1)===10));)e.p++;if(r||t!==35)break;_(e)}}function c(e,i=61){let r,t=0,a=[],l,n=e.s.charCodeAt(r=e.p);do{if(n===i)return t||s.x("unexpected end of key",e),t===1&&a.push(e.s.slice(l,e.p)),e.p++,a;n===46?(t||s.x("illegal empty bare key",e),t===1&&a.push(e.s.slice(l,e.p)),t=0):!t&&(n===34||n===39)?(n===e.s.charCodeAt(e.p+1)&&n===e.s.charCodeAt(e.p+2)&&s.x("illegal quoted key: multiline strings are not allowed",e),a.push(b(e)),t=2,e.p--):n===32||n===9?t===1&&(a.push(e.s.slice(l,e.p)),t=2):t===2||n<48&&n!==45||n>57&&n<65||n>90&&n<97&&n!==95||n>122?s.x("illegal character in key",e):t||(t=1,l=e.p)}while(n=e.s.charCodeAt(++e.p));s.x("incomplete key-value: cannot find end of key",e,r)}function S(e){let i=e.p++,r=Object.create(null),t=new Set,a;for(;e.p<e.s.length;){if(m(e),(a=e.s.charCodeAt(e.p))===125)return e.p++,r;let l,n=r,o=!1,f=e.p,u=c(e);for(let d=0;d<u.length;d++){d&&(n=o?n[l]:n[l]=Object.create(null)),l=u[d],(o=Object.hasOwn(n,l))&&(typeof n[l]!="object"||t.has(n[l]))&&s.x("trying to redefine an already defined value",e,f);let A=l==="__proto__";if(e.uk&&(A||l==="constructor")){n=e.uk!==1&&s.x("document contains an unsafe property",e,f);break}!o&&A&&Object.defineProperty(n,l,{enumerable:!0,configurable:!0,writable:!0})}o&&s.x("trying to redefine an already defined value",e,f),m(e,!0,!0);let p=T(e,125);if(n&&typeof(n[l]=p)=="object"&&t.add(p),m(e),(a=e.s.charCodeAt(e.p++))===125)return r;a!==44&&s.x("expected comma or end of structure",e,e.p-1)}s.x("unfinished table",e,i)}function I(e){let i=e.p++,r=[],t;for(;e.p<e.s.length;){if(m(e),(t=e.s.charCodeAt(e.p))===93)return e.p++,r;if(r.push(T(e,93)),m(e),(t=e.s.charCodeAt(e.p++))===93)return r;t!==44&&s.x("expected comma or end of structure",e,e.p-1)}s.x("unfinished array",e,i)}function $(e,i,r,t,a){let l=r,n=t,o,f=!1,u;for(let p=0;p<i.length;p++){if(p){if(l=f?l[o]:l[o]=Object.create(null),n=(u=n[o]).c,a===0&&(u.t===1||u.t===2))return null;if(u.t===2){let d=l.length-1;l=l[d],n=n[d].c}}if(o=i[p],(f=Object.hasOwn(l,o))&&n[o]?.t===0&&n[o]?.d)return null;if(!f){let d=o==="__proto__";if(e.uk&&(d||o==="constructor"))return!1;d&&(Object.defineProperty(l,o,{enumerable:!0,configurable:!0,writable:!0}),Object.defineProperty(n,o,{enumerable:!0,configurable:!0,writable:!0})),n[o]={t:p<i.length-1&&a===2?3:a,d:!1,i:0,c:Object.create(null)}}}if(u=n[o],u.t!==a&&!(a===1&&u.t===3)||(a===2&&(u.d||(u.d=!0,l[o]=[]),l[o].push(l=Object.create(null)),u.c[u.i++]=u={t:1,d:!1,i:0,c:Object.create(null)}),u.d))return null;if(u.d=!0,a===1)l=f?l[o]:l[o]=Object.create(null);else if(a===0&&f)return null;return[o,l,u.c]}function N(e,i,r){(i===null||e.uk===2)&&s.x(i===null?"trying to redefine an already defined table or value":"document contains an unsafe property",e,r)}function D(e,i={}){let r={s:e,p:0,d:i.maxDepth??1e3,bi:i.integersAsBigInt??!1,ld:i.useLegacyDate??!0,uk:i.unsafeKeyBehaviour==="throw"?2:i.unsafeKeyBehaviour==="drop"?1:0},t=Object.create(null),a=Object.create(null),l,n=!1,o=t,f=a;for(e.charCodeAt(0)===65279&&r.p++,m(r);r.p<e.length;){if(e.charCodeAt(r.p)===91){let u=e.charCodeAt(++r.p)===91;l=r.p+=+u,n=!1;let p=c(r,93);u&&(e.charCodeAt(r.p)!==93&&s.x("expected end of table array declaration",r),r.p++);let d=$(r,p,t,a,u?2:1);d?(f=d[2],o=d[1]):(N(r,d,l),n=!0)}else{l=r.p;let u=c(r),p=$(r,u,o,f,0);!p&&!n&&N(r,p,l),m(r,!0,!0);let d=T(r,void 0);p&&!n&&(p[1][p[0]]=d)}m(r,!0),r.p<e.length&&(l=e.charCodeAt(r.p))!==10&&(l!==13||e.charCodeAt(r.p+1)!==10)&&s.x("each key-value declaration must be followed by an end-of-line",r),m(r)}return t}var te=!!"".isWellFormed;window.TOML={parse:D};})();
+/*! Bundled license information:
+
+smol-toml/dist/error.js:
+smol-toml/dist/primitive.js:
+smol-toml/dist/date.js:
+smol-toml/dist/extract.js:
+smol-toml/dist/util.js:
+smol-toml/dist/struct.js:
+smol-toml/dist/parse.js:
+smol-toml/dist/stringify.js:
+smol-toml/dist/index.js:
+  (*!
+   * Copyright (c) Squirrel Chat et al., All rights reserved.
+   * SPDX-License-Identifier: BSD-3-Clause
+   *
+   * Redistribution and use in source and binary forms, with or without
+   * modification, are permitted provided that the following conditions are met:
+   *
+   * 1. Redistributions of source code must retain the above copyright notice, this
+   *    list of conditions and the following disclaimer.
+   * 2. Redistributions in binary form must reproduce the above copyright notice,
+   *    this list of conditions and the following disclaimer in the
+   *    documentation and/or other materials provided with the distribution.
+   * 3. Neither the name of the copyright holder nor the names of its contributors
+   *    may be used to endorse or promote products derived from this software without
+   *    specific prior written permission.
+   *
+   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+   * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+   * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+   * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+   * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+   * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+   * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+   * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   *)
+*/
+
+</script>
+<script>
 // ---- The interface's language: English, Portuguese or Spanish.
 // The page's own text is English in the HTML (elements marked data-t="<id>", placeholders data-t-ph="<id>"), with its
 // Portuguese in PT_HTML; the code's strings are English, wrapped in T(), with their Portuguese in PT (keyed by the English).
@@ -322,7 +399,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 const PT_HTML = {
-  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.1.2',
+  'sub': 'Equipamentos e emblemas para o Inazuma Fantasy · versão 2.2.0',
   'c.title': 'Liga a pasta «mods» do Fantasy',
   'c.where': 'É a pasta <b>mods</b> que está dentro da pasta do jogo, ao lado do <b>nie.exe</b> (lá dentro estão o VRFW, o BetterQoL e os outros mods). Por exemplo:',
   'c.blocked': '⚠ O Edge e o Chrome não conseguem abrir pastas dentro de <b>Program Files</b> (nem Windows / AppData). Mantém esta app e o jogo fora delas. Se o jogo estiver na biblioteca padrão do Steam (<b>C:\Program Files (x86)\Steam</b>), muda-o no Steam: <b>Propriedades → Ficheiros instalados → Mover pasta de instalação</b>.',
@@ -385,7 +462,8 @@ const PT = {
   'On the launcher’s Mods page, check that «{mod}» is switched on.': 'Na página Mods do launcher, confirma que «{mod}» está ligado.',
   // folders
   'connect the reference folder first': 'liga primeiro a pasta reference',
-  'The browser did not open the folder window: click «Connect the reference folder…» again.': 'O browser não abriu a janela das pastas: carrega outra vez em «Ligar a pasta reference…».',
+  '{file} came out wrong ({err}): the mod was left as it was. Please tell the app’s author.': 'O {file} saiu com um erro ({err}): o mod ficou como estava. Avisa o autor da app, por favor.',
+  'The browser did not open the folder window ({err}). Open the app by double-clicking custom-kits.html and try again.': 'O browser não abriu a janela das pastas ({err}). Abre a app com duplo clique em custom-kits.html e tenta outra vez.',
   'That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).': 'Essa pasta não tem os ficheiros do jogo. Escolhe a pasta «reference» (a que tem data\\dx11 lá dentro).',
   'Reference folder connected: the game’s crests are below.': 'Pasta reference ligada: os emblemas do jogo estão aqui em baixo.',
   'Reference folder connected: {n} bases.': 'Pasta reference ligada: {n} bases.',
@@ -404,6 +482,18 @@ const PT = {
   'Could not change the tab: ': 'Não consegui mudar a aba: ',
   'You have not made anything yet.': 'Ainda não criaste nada.',
   'Delete': 'Apagar',
+  'Edit': 'Editar',
+  'Copy': 'Copiar',
+  'Change this kit (the game keeps it: whoever bought it gets the new version)': 'Mudar este equipamento (o jogo mantém-no: quem já o comprou fica com a versão nova)',
+  'A new kit that starts from this one': 'Um equipamento novo que parte deste',
+  'Connect the reference folder first: this kit was made from one of its bases.': 'Liga primeiro a pasta reference: este equipamento foi feito a partir de uma das bases dela.',
+  'The base of this kit was not found.': 'Não se encontrou a base deste equipamento.',
+  '{name} (copy)': '{name} (cópia)',
+  'Opening «{name}»: {n} of {t}…': 'A abrir «{name}»: {n} de {t}…',
+  'Copying «{name}»: change what you want and generate it as a new kit.': 'A copiar «{name}»: muda o que quiseres e gera-o como um equipamento novo.',
+  'Editing «{name}»: generate it again to save the changes.': 'A editar «{name}»: gera-o outra vez para guardar as mudanças.',
+  'Could not open this kit: ': 'Não foi possível abrir este equipamento: ',
+  'Close and reopen the game: whoever already bought it sees the new version (nothing to buy again).': 'Fecha e volta a abrir o jogo: quem já o comprou vê a versão nova (não é preciso comprar outra vez).',
   '{n} token': '{n} token', '{n} tokens': '{n} tokens',
   'Choose on the left the kit you want to start from.': 'Escolhe à esquerda o equipamento que queres usar como base.',
   'Choose on the left the game crest you want to start from, or ': 'Escolhe à esquerda o emblema do jogo de que queres partir, ou ',
@@ -476,7 +566,7 @@ const PT = {
 };
 
 const ES_HTML = {
-  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.1.2",
+  "sub": "Equipaciones y escudos para Inazuma Fantasy · versión 2.2.0",
   "c.title": "Conecta la carpeta «mods» de Fantasy",
   "c.where": "Es la carpeta <b>mods</b> que está dentro de la carpeta del juego, junto a <b>nie.exe</b> (dentro están VRFW, BetterQoL y los demás mods). Por ejemplo:",
   "c.blocked": "⚠ Edge y Chrome no pueden abrir carpetas dentro de <b>Program Files</b> (ni Windows / AppData). Mantén esta app y el juego fuera de ellas. Si el juego está en la biblioteca predeterminada de Steam (<b>C:\Program Files (x86)\Steam</b>), muévelo en Steam: <b>Propiedades → Archivos instalados → Mover carpeta de instalación</b>.",
@@ -560,7 +650,8 @@ const ES = {
   "there are already {n} kits in your Custom Kits mods, the most the game’s texture names allow. Delete one first.": "ya hay {n} equipaciones en tus mods de Custom Kits, el máximo que permiten los nombres de las texturas del juego. Borra una primero.",
   "On the launcher’s Mods page, check that «{mod}» is switched on.": "En la página Mods del launcher, comprueba que «{mod}» está activado.",
   "connect the reference folder first": "conecta primero la carpeta reference",
-  "The browser did not open the folder window: click «Connect the reference folder…» again.": "El navegador no abrió la ventana de carpetas: pulsa otra vez «Conectar la carpeta reference…».",
+  "{file} came out wrong ({err}): the mod was left as it was. Please tell the app’s author.": "{file} salió con un error ({err}): el mod se quedó como estaba. Avisa al autor de la app, por favor.",
+  "The browser did not open the folder window ({err}). Open the app by double-clicking custom-kits.html and try again.": "El navegador no abrió la ventana de carpetas ({err}). Abre la app con doble clic en custom-kits.html y vuelve a intentarlo.",
   "That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).": "Esa carpeta no tiene los archivos del juego. Elige la carpeta «reference» (la que tiene data\\dx11 dentro).",
   "Reference folder connected: the game’s crests are below.": "Carpeta reference conectada: los escudos del juego están aquí abajo.",
   "Reference folder connected: {n} bases.": "Carpeta reference conectada: {n} bases.",
@@ -580,6 +671,18 @@ const ES = {
   "Could not change the tab: ": "No se pudo cambiar la pestaña: ",
   "You have not made anything yet.": "Todavía no has creado nada.",
   "Delete": "Borrar",
+  "Edit": "Editar",
+  "Copy": "Copiar",
+  "Change this kit (the game keeps it: whoever bought it gets the new version)": "Cambiar esta equipación (el juego la mantiene: quien ya la compró tiene la versión nueva)",
+  "A new kit that starts from this one": "Una equipación nueva que parte de esta",
+  "Connect the reference folder first: this kit was made from one of its bases.": "Conecta primero la carpeta reference: esta equipación se hizo a partir de una de sus bases.",
+  "The base of this kit was not found.": "No se encontró la base de esta equipación.",
+  "{name} (copy)": "{name} (copia)",
+  "Opening «{name}»: {n} of {t}…": "Abriendo «{name}»: {n} de {t}…",
+  "Copying «{name}»: change what you want and generate it as a new kit.": "Copiando «{name}»: cambia lo que quieras y genérala como una equipación nueva.",
+  "Editing «{name}»: generate it again to save the changes.": "Editando «{name}»: genérala otra vez para guardar los cambios.",
+  "Could not open this kit: ": "No se pudo abrir esta equipación: ",
+  "Close and reopen the game: whoever already bought it sees the new version (nothing to buy again).": "Cierra y vuelve a abrir el juego: quien ya la compró ve la versión nueva (no hay que comprarla otra vez).",
   "{n} token": "{n} token",
   "{n} tokens": "{n} tokens",
   "Choose on the left the kit you want to start from.": "Elige a la izquierda la equipación de la que quieres partir.",
@@ -1535,16 +1638,31 @@ function connectRef(ask) {
   return refConnecting || (refConnecting = connectRef1(false).finally(() => { refConnecting = null; }));
 }
 let migrating = Promise.resolve();   // the kits' textures renamed at the start: the cards wait for it
+// the folder window, opened in the click itself: nothing is awaited before it (a browser shows it only right after a click)
+function pickRef() {
+  const t0 = performance.now(), ms = () => Math.round(performance.now() - t0);
+  let p;
+  try { p = window.showDirectoryPicker({ mode: 'read', id: 'inazuma-ref' }); } catch (e) { p = Promise.reject(e); }
+  return p.then(h => { console.info(`[reference] folder chosen: ${h.name} (${ms()} ms)`); return h; }, e => {
+    console.warn(`[reference] the folder window answered ${e && e.name}: ${e && e.message} (${ms()} ms)`);
+    // a person closing the window takes longer than a second: a faster «AbortError» is the browser refusing it
+    if (e && (e.name !== 'AbortError' || ms() < 1000)) status(T('The browser did not open the folder window ({err}). Open the app by double-clicking custom-kits.html and try again.', { err: e.name }), 'err');
+    return null;
+  });
+}
+// the folder remembered, if the browser still lets the app read it (a folder that moved can leave the browser waiting: 4 s at most)
+async function savedRef() {
+  const h = await savedHandle('ref'); if (!h) return null;
+  const wait = new Promise(res => setTimeout(() => { console.warn('[reference] the folder remembered did not answer'); res(null); }, 4000));
+  return Promise.race([wait, (async () => {
+    try { if (!h.queryPermission || await h.queryPermission({ mode: 'read' }) !== 'granted') return null; } catch (e) { return null; }
+    return checkRef(h);
+  })()]);
+}
 async function connectRef1(ask) {
-  // a click opens the folder picker at once: the browser shows it only right after the click (before 2.1.2 the app first
-  // asked again for the folder remembered, and when that folder had been moved or its permission refused, nothing opened)
-  let h = await savedHandle('ref');
-  try { if (h && (!h.queryPermission || await h.queryPermission({ mode: 'read' }) !== 'granted')) h = null; } catch (e) { h = null; }
-  if (h && !(await checkRef(h))) h = null;   // the folder remembered moved or emptied
-  if (!h && ask) {
-    try { h = await window.showDirectoryPicker({ mode: 'read', id: 'inazuma-reference' }); }
-    catch (e) { if (e && e.name !== 'AbortError') { console.error(e); status(T('The browser did not open the folder window: click «Connect the reference folder…» again.'), 'err'); } h = null; }
-  }
+  // a click always opens the folder window at once (2.1.3): before, the app first looked at the folder remembered, and in the
+  // window the .bat opens that could take long enough (or never end) for the browser to refuse the folder window
+  let h = ask ? await pickRef() : await savedRef();
   if (!h) { renderRefBox(); return; }
   const r = await checkRef(h);
   if (!r) { status(T('That folder does not have the game’s files. Choose the «reference» folder (the one with data\\dx11 inside it).'), 'err'); renderRefBox(); return; }
@@ -1759,9 +1877,15 @@ function buildPalette(px, n, alpha = false) {
   pal.forEach(p => { p.count = p.count / Math.max(1, seen) * n; });   // the shares shown are of the visible pixels
   return { pal, idx, idx2, wt };
 }
+// a texture's starting file: the kit's own (editing or copying a kit made before) or the base's
+const kitFileOf = ti => cur && cur.from && cur.from.files && cur.from.files[ti];
+function srcFile(ti) {
+  const f = kitFileOf(ti);
+  return f ? fileAt([MOD, 'assets', 'chr', ...f.split('/')]) : texFile(cur.base, cur.base.textures[ti]);
+}
 async function loadTexture(ti) {
   const t = cur.tex[ti]; if (t.images) return;
-  const bytes = new Uint8Array(await (await texFile(cur.base, cur.base.textures[ti])).arrayBuffer());
+  const bytes = new Uint8Array(await (await srcFile(ti)).arrayBuffer());
   const g = G4TX.parse(bytes); t.images = [];
   for (const e of g.ents) {
     // the images _20 (top), _30 (bottom) and the extra parts (_21, _22, _40 …, _10 a whole suit), with their occlusion maps
@@ -1910,6 +2034,13 @@ ${STATE_TAG}${JSON.stringify(store)}
 }
 async function writeMod() {
   const files = modFiles(), enc = new TextEncoder();
+  // every file is checked before anything is written: one wrong line and VRFW refuses the whole file
+  for (const [p, text] of Object.entries(files)) if (p.endsWith('.toml') && typeof text === 'string') {
+    try { TOML.parse(text); } catch (e) {
+      console.error(p, e);
+      throw new Error(T('{file} came out wrong ({err}): the mod was left as it was. Please tell the app’s author.', { file: p, err: String(e.message).split('\n')[0] }));
+    }
+  }
   // leftovers of the first tests (X variants) and files of kits that are gone
   await removeAt(['MeusKits'], true);   // the test mod this tool replaces
   const optional = ['content/looks/custom_kits.toml', 'content/items/kits.toml', 'content/images/menu/200_icon/02_icon_item/custom_kits_icons.toml', 'content/sprite_redirects/kit_icons.toml', 'addons/InazumaFantasy/content/shops/kits.toml', ...EMBLEM_TOMLS];
@@ -1992,10 +2123,12 @@ function renderMyKits() {
   const box = $('#mine'); box.textContent = '';
   if (!store.kits.length && !store.emblems.length) { box.append(el('p', { class: 'hint', text: T('You have not made anything yet.') })); return; }
   if (store.kits.length) box.append(el('div', { class: 'mine-h', text: T('Kits') }));
-  for (const k of store.kits) box.append(el('div', { class: 'row mine' },
+  for (const k of store.kits) box.append(el('div', { class: 'row mine kit' },
     el('span', { class: 'dot', style: `background:${k.color || '#888'}` }),
     el('span', { class: 'grow' }, el('b', { text: k.name }), el('small', { text: ` · ${tokens(k.price)}` })),
-    el('button', { class: 'danger', text: T('Delete'), onclick: () => deleteKit(k) })));
+    el('span', { class: 'acts' }, el('button', { text: T('Edit'), title: T('Change this kit (the game keeps it: whoever bought it gets the new version)'), onclick: () => openKit(k, false) }),
+    el('button', { text: T('Copy'), title: T('A new kit that starts from this one'), onclick: () => openKit(k, true) }),
+    el('button', { class: 'danger', text: T('Delete'), onclick: () => deleteKit(k) }))));
   if (store.emblems.length) box.append(el('div', { class: 'mine-h', text: T('Crests') }));
   for (const e of store.emblems) {
     const cv = el('canvas', { width: 64, height: 64, class: 'mthumb' });
@@ -2316,6 +2449,28 @@ async function startKit(base, row) {
   busy = false; showStep();
 }
 
+// a kit made before, opened again: edited in place (same item, slot and files) or copied into a new kit. It starts from the
+// kit's own textures (its colours, crests and pictures are in them; the crests can no longer be moved one by one)
+async function openKit(k, copy) {
+  if (busy) return;
+  const base = findBase(k);
+  if (!base) { status(k.src === 'ref' ? T('Connect the reference folder first: this kit was made from one of its bases.') : T('The base of this kit was not found.'), 'err'); return; }
+  if (anyEdit() && !confirm(isEmblem() ? T('You have changes not generated yet in this crest. Switch anyway?') : T('You have changes not generated yet in this kit. Switch anyway?'))) return;
+  if (mode !== 'kit') await setMode('kit');
+  if (view3d) setView3d(false);
+  busy = true;
+  document.querySelectorAll('#bases .row').forEach(r => r.classList.remove('on'));
+  cur = { type: 'kit', base, from: k, copy, tex: base.textures.map(() => ({ images: null })), t: 0, i: 0, sel: null, step: 0, icon: null, finished: false, num: { ...(k.num || {}) } };
+  $('#kitname').value = copy ? T('{name} (copy)', { name: k.name }) : k.name; $('#kitprice').value = String(k.price ?? 1);
+  try {
+    if (k.customIcon) { try { cur.icon = await createImageBitmap(await fileAt([...ICON_DIR_OF(), `${kitIconKey(k)}.png`])); } catch (e) { /* made again */ } }
+    const main = base.textures.map((t, i) => i).filter(i => !base.textures[i].kind);
+    for (const [j, i] of main.entries()) { status(T('Opening «{name}»: {n} of {t}…', { name: k.name, n: j + 1, t: main.length })); await sleep(20); await loadTexture(i); }
+    status(copy ? T('Copying «{name}»: change what you want and generate it as a new kit.', { name: k.name }) : T('Editing «{name}»: generate it again to save the changes.', { name: k.name }), 'ok');
+  } catch (e) { status(T('Could not open this kit: ') + e.message, 'err'); cur = null; }
+  busy = false; showStep();
+}
+
 // ---------- images from files
 async function pickImage() {
   return new Promise(res => { const i = el('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp' }); i.onchange = () => res(i.files[0] || null); i.click(); });
@@ -2406,14 +2561,16 @@ async function generate() {
   if (!name) { status(T('Give the kit a name before generating it.'), 'err'); $('#kitname').focus(); return; }
   busy = true; $('#next').disabled = true; $('#prev').disabled = true;
   try {
-    const n = Math.max(store.next || 0, store.kits.reduce((m, k) => Math.max(m, k.n), 0)) + 1, files = [], slot = freeSlot();
+    // editing a kit: its number, item, icon and texture slot stay (the saves know it by its item); a copy is a new kit
+    const old = cur.from && !cur.copy && store.kits.includes(cur.from) ? cur.from : null;
+    const n = old ? old.n : Math.max(store.next || 0, store.kits.reduce((m, k) => Math.max(m, k.n), 0)) + 1, files = [], slot = old ? kitSlot(old) : freeSlot();
     if (slot == null) throw new Error(T('there are already {n} kits in your Custom Kits mods, the most the game’s texture names allow. Delete one first.', { n: MAX_SLOT }));
-    const ids = { item: `kit_${uidOf()}_${n}`, icon: `uni_ck${uidOf()}${pad(n, 4)}`, slot };
+    const ids = old ? { item: old.item, icon: kitIconKey(old), slot } : { item: `kit_${uidOf()}_${n}`, icon: `uni_ck${uidOf()}${pad(n, 4)}`, slot };
     for (let ti = 0; ti < cur.base.textures.length; ti++) {
       const t = cur.base.textures[ti];
-      if (t.kind && !(cur.tex[ti].images || []).some(edited)) { files.push(null); continue; }
+      if (t.kind && !(cur.tex[ti].images || []).some(edited) && !kitFileOf(ti)) { files.push(null); continue; }
       status(T('Generating {n} of {t}: {what}…', { n: ti + 1, t: cur.base.textures.length, what: roleLabel(t.role) })); await sleep(30);
-      const bytes = new Uint8Array(await (await texFile(cur.base, t)).arrayBuffer()), g = G4TX.parse(bytes);
+      const bytes = new Uint8Array(await (await srcFile(ti)).arrayBuffer()), g = G4TX.parse(bytes);
       for (const im of cur.tex[ti].images || []) if (edited(im)) { G4TX.replaceEntry(bytes, g.ents.find(x => x.name === im.entry), finalPixels(im)); await sleep(); }
       const dir = t.path.split('/').slice(0, -1), fname = texName(slot, ti, t) + '.g4tx';
       await writeAt([MOD, 'assets', 'chr', ...dir, fname], bytes);
@@ -2423,16 +2580,19 @@ async function generate() {
     if (!cur.icon) await refreshIcon3d();
     drawIconPreview();
     await writeAt([...ICON_DIR_OF(), `${ids.icon}.png`], await new Promise(r => $('#iconview').toBlob(r, 'image/png')));
-    const kit = { n, ...ids, name, price, base: cur.base.id, src: cur.base.src, files, num: { ...cur.num }, color: toHex(kitColours()[0]), icon3d: !cur.icon && cur.icon3d ? ICON_REV : false, customIcon: !!cur.icon };
+    const kit = { ...(old || {}), n, ...ids, name, price, base: cur.base.id, src: cur.base.src, files, num: { ...cur.num }, color: toHex(kitColours()[0]), icon3d: !cur.icon && cur.icon3d ? ICON_REV : false, customIcon: !!cur.icon };
+    delete kit.busts; delete kit.bustRev;
     if (refRoot) {
       try { kit.busts = await makeBusts(kit, cur.base, (i, t) => status(T('Generating the player cards: {n} of {t}…', { n: i, t }))); kit.bustRev = BUST_REV; }
       catch (e) { console.error(e); status(T('The player cards were not generated: ') + e.message, 'err'); await sleep(1500); }
     }
-    store.rev++; store.next = n; store.kits.push(kit);
+    if (old) store.kits[store.kits.indexOf(old)] = kit; else { store.next = n; store.kits.push(kit); }
+    store.rev++;
     await writeMod();
     renderMyKits(); status('');
     cur.finished = true;
-    doneSteps(name, [T('On the launcher’s Mods page, check that «{mod}» is switched on.', { mod: modName() }), T('Open the game through Steam and choose Fantasy.'), T('Go to the General Store (General Store → Kits). The kit costs {price}.', { price: tokens(price) })]);
+    if (old) doneSteps(name, [T('Close and reopen the game: whoever already bought it sees the new version (nothing to buy again).')]);
+    else doneSteps(name, [T('On the launcher’s Mods page, check that «{mod}» is switched on.', { mod: modName() }), T('Open the game through Steam and choose Fantasy.'), T('Go to the General Store (General Store → Kits). The kit costs {price}.', { price: tokens(price) })]);
   } catch (e) { console.error(e); status(T('Something went wrong while generating: ') + e.message, 'err'); }
   busy = false; $('#next').disabled = false; showStep();
 }
